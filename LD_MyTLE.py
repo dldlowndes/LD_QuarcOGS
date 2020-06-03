@@ -1,4 +1,4 @@
-class My_TLE:
+class LD_MyTLE:
     """
     Container to make accessing elements of a TLE easier.
     """

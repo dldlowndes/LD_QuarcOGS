@@ -2,7 +2,7 @@ import warnings
 
 import LD_MyTLE
 
-class TLE_List:
+class LD_TLE_List:
     """
     Get TLE database from a file (local or internet).
     """
@@ -24,7 +24,7 @@ class TLE_List:
         # Reshape the data from the file grouped into threes
         tle_List = zip(flatlist[0::3], flatlist[1::3], flatlist[2::3])
         # Put the data into a dict
-        self.tle_Dict = {key:LD_MyTLE.My_TLE(data) for (key, data) in zip(tle_Names, tle_List)}
+        self.tle_Dict = {key:LD_MyTLE.LD_MyTLE(data) for (key, data) in zip(tle_Names, tle_List)}
 
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}
@@ -42,15 +42,16 @@ class TLE_List:
     def Search_And_Return(self, search_String):
         """
         Search the satellites names for a substring, if there is only one
-        satellite containing that substring, return it. Otherwise warn.
+        satellite containing that substring, return it. Otherwise return a
+        list of all the matching satellites (eg searching "starlink" returns
+        a list of about 400 My_TLE objects)
         """
         search_Keys = self.Search_Keys(search_String)
 
         if isinstance(search_Keys, str):
             return self.Get_TLE(search_Keys)
         else:
-            warnings.warn(f"No unique value found. Found {len(search_Keys)} instead")
-            return None
+            return [self.Get_TLE(key) for key in search_Keys]
 
     def Get_TLE_String(self, key):
         """
@@ -72,7 +73,7 @@ class TLE_List:
         return list(self.tle_Dict.values())[index]
 
 if __name__ == "__main__":
-    my_tle_list = TLE_List("active.txt", False)
+    my_tle_list = LD_TLE_List("active.txt", False)
 
     sat_key = my_tle_list.Search_Keys("resurs-dk")
     tle = my_tle_list.tle_Dict[sat_key]
