@@ -1,3 +1,5 @@
+import datetime
+
 class LD_MyTLE:
     """
     Container to make accessing elements of a TLE easier.
@@ -35,7 +37,11 @@ class LD_MyTLE:
         self.catalog_Number = line1_Split[1][:-1]
         self.classification = line1_Split[1][-1:]
         self.designator = line1_Split[2]
-        self.epoch = line1_Split[3]
+        self.epoch_str = line1_Split[3]
+        #Translate epoch straight into something actually useful!
+        epoch_year = datetime.datetime(2000 + int(self.epoch_str[:2]), 1, 1)
+        epoch_days = datetime.timedelta(days=float(self.epoch_str[2:]))
+        self.epoch = epoch_year + epoch_days
         self.first_Derivative = line1_Split[4]
         self.second_Derivative = line1_Split[5]
         self.drag_Term = line1_Split[6]

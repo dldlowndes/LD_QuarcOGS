@@ -65,29 +65,44 @@ class LD_PassFinder:
         local time zone for the algorithms.
         """ 
 
+        # Interpret the time stamp input and convert into UTC astropy Time objects
         self.t_start = self._Timestamp_Convert(t_start)
         self.t_stop = self._Timestamp_Convert(t_stop)
         self.t_step = datetime.timedelta(minutes=t_interval)
 
+        # Make all the time stamps that we want data for.
+        # I'm sure there's a more elegant way of doing this but it works.
         self.utc_Time_Series = []
         ti = self.t_start
         while ti <= self.t_stop:
             self.utc_Time_Series.append(ti)
             ti = ti + self.t_step
 
+        # sgp4 takes time stamps as julian date (because of course) and also as
+        # numpy arrays so do the relevant conversions.
         self.jd_Range = np.array([x.jd for x in self.utc_Time_Series])
+
+
+        # astropy still wants the time stamps in utc_Time_Series, which map to
+        # the ones in jd_Range. But should they actually both be in one (slicable?)
+        # container to ensure they are definitely referring to the same times?
 
         return self.utc_Time_Series
 
     def _Timestamp_Convert(self, stamp):
+        # Seems sensible that the user inputs the datetime in their local time
+        # so step 1 of interpreting is getting said time zone.
         self.my_tz = tzlocal.get_localzone()
         
+        # Figure out if a ISO8601 string or datetime object were supplied.
         if isinstance(stamp, str):
             stamp_local = self.my_tz.localize(dateutil.parser.parse(stamp))
         elif isinstance(stamp, datetime.datetime):
             stamp_local = self.my_tz.localize(stamp)
         else:
             raise TypeError
+            
+        # And make into an astropy time object (in UTC)
         return astropy.time.Time(stamp_local)
 
     def Get_Local_Times(self):
@@ -108,6 +123,7 @@ class LD_PassFinder:
         Celestrak.
         Or provide a LD_TLEList object directly.
         """
+        
         if isinstance(tle_List, str):
             self.tle_List = LD_TLEList.LD_TLE_List(tle_List, False)
         elif isinstance(tle_List, LD_TLEList.LD_TLE_List):
