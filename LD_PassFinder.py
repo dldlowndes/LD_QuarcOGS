@@ -10,6 +10,7 @@ import astropy.time
 
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.signal
 
 import sgp4.api
 
@@ -114,7 +115,7 @@ class LD_PassFinder:
         # Sorry, this is kind of horrible.
         # Converts each astropy time object into a utc datetime object, then
         # converts into the local time zone.
-        local_Times = [t.to_datetime(pytz.utc).astimezone(self.my_tz) for t in self.utc_Time_Series]
+        local_Times = [t.to_datetime(self.my_tz) for t in self.utc_Time_Series]
         return local_Times
 
     def Load_TLE_Data(self, tle_List=None):
@@ -128,6 +129,9 @@ class LD_PassFinder:
             self.tle_List = LD_TLEList.LD_TLE_List(tle_List, False)
         elif isinstance(tle_List, LD_TLEList.LD_TLE_List):
             self.tle_List = tle_List
+        elif isinstance(tle_List, type(None)):
+            url = "https://www.celestrak.com/NORAD/elements/active.txt"
+            self.tle_List = LD_TLEList.LD_TLE_List(url, True)
         else:
             warnings.warn("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
 
@@ -199,7 +203,7 @@ class LD_PassFinder:
             # Convert satellite coordinates (relative to earth) into alt/az 
             # from this position on earth (set by Set_Position).
             view = itrs.transform_to(observer)
-            self.altaz_Data.append([tle, view.alt, view.az])
+            self.altaz_Data.append([tle, np.column_stack((self.utc_Time_Series, view.alt.data, view.az.data))])
 
         if len(self.errors) > 0:
             print(f"Some errors, see {self.errors}")
@@ -212,10 +216,55 @@ class LD_PassFinder:
         satellites this will look like technicolour vomit at best and at worst
         just crash.
         """
-        for tle, alt, az in self.altaz_Data:
+        for tle, times, alt, az in self.altaz_Data:
             plt.plot(alt)
         plt.ylim(0,90)
         plt.show()
+        
+    def Filter_Passes(self):
+        """
+        Filter out all of the data from the passes where the satellite is
+        below the horizon.
+        """
+        
+        self.pass_List = []
+        for sat, data in self.altaz_Data:
+            alt_peaks = scipy.signal.argrelextrema(data[:,1], np.greater)[0]
+        
+            for peak in alt_peaks:
+                time, alt, az = data[peak]
+                if alt > 30:
+                    self.pass_List.append([sat.name, time.to_datetime(self.my_tz), alt, az])
+        
+        self.pass_List.sort(key=lambda x: x[1])
+        return self.pass_List
+    
+    def Print_Pass_List(self):        
+        print(f"Name, time, alt, az")
+        for sat in self.pass_List:
+            name = sat[0]
+            time = str(sat[1])
+            alt = sat[2]
+            az = sat[3]
+            print(f"{name}, {time},\t {alt:.2f},\t {az:.2f}")
+            
+    def Save_Pass_List(self):
+        t_fmt = "%Y-%m-%dT%H-%M-%S"
+        filename = "".join(["passes",
+                            self.t_start.to_datetime(self.my_tz).strftime(t_fmt),
+                            " - ",
+                            self.t_stop.to_datetime(self.my_tz).strftime(t_fmt),
+                            ".csv"
+                            ])
+        
+        with open(filename, "w") as f:
+            f.write(f"Name, time, alt, az\n")
+            for sat in self.pass_List:
+                name = sat[0]
+                time = str(sat[1])
+                alt = sat[2]
+                az = sat[3]
+                f.write(f"{name}, {time}, {alt:.2f}, {az:.2f}\n")
 
 if __name__ == "__main__":
     finder = LD_PassFinder()
@@ -224,21 +273,32 @@ if __name__ == "__main__":
     # Set the time range to search for passes within.
     # (and the resolution in minutes)
     finder.Search_Time_Range(
-            "2020-06-02T23:00:00",
-            "2020-06-03T02:00:00",
-            1
+            "2020-06-04T23:00:00",
+            "2020-06-05T02:00:00",
+            1/60.0
             )
     
     # Load the TLE data file into the finder.
-    #finder.Load_TLE_Data("visual.txt")
-    finder.Load_TLE_Data("active.txt")
-
+    finder.Load_TLE_Data("visual.txt") 
+    #finder.Load_TLE_Data("active.txt") # a very big list!
+    #finder.Load_TLE_Data("cubesat.txt")
+    #finder.Load_TLE_Data() # Go get Celestrak's "active" list from the internet.
+    
     # Find some values in the TLE list.
+    # Find TLE lists on:
+    #   - https://www.celestrak.com/NORAD/elements/
+    #   - https://www.space-track.org
+    # Maybe find candidates on https://in-the-sky.org/satpasses.php
     t1 = finder.Search_TLE_Data("zarya") # just the ISS
     t2 = finder.Search_TLE_Data("starlink") # all the starlink satellites (!)
+    t3 = finder.Search_TLE_Data("resurs-dk")
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes(t1)
+    data = finder.Calculate_Passes()
     
     #finder.Plot_Passes()
+    
+    viable_Passes = finder.Filter_Passes()
+    finder.Print_Pass_List()
+    finder.Save_Pass_List()
