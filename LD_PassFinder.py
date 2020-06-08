@@ -210,7 +210,7 @@ class LD_PassFinder:
 
         return self.altaz_Data
 
-    def Plot_Passes(self):
+    def Plot_All_Passes(self):
         """
         Basic plotting for now. Beware if Calculate_Passes gets given too many
         satellites this will look like technicolour vomit at best and at worst
@@ -221,20 +221,43 @@ class LD_PassFinder:
         plt.ylim(0,90)
         plt.show()
         
-    def Filter_Passes(self):
+    def Filter_Passes(self, alt_Filter):
         """
         Filter out all of the data from the passes where the satellite is
-        below the horizon.
+        below "alt_Filter" degrees altitude.
         """
         
         self.pass_List = []
+        self.pass_Data = []
         for sat, data in self.altaz_Data:
             alt_peaks = scipy.signal.argrelextrema(data[:,1], np.greater)[0]
         
             for peak in alt_peaks:
                 time, alt, az = data[peak]
-                if alt > 30:
+                if alt > alt_Filter:
                     self.pass_List.append([sat.name, time.to_datetime(self.my_tz), alt, az])
+                
+                    i = peak
+                    search_alt = alt
+                    print(f"{sat.name}, {len(data)}")
+                    while search_alt > 0:
+                        i += 1
+                        if i >= len(data):
+                            break
+                        search_alt = data[i][1]
+                    end = (i - 1)
+                    
+                    search_alt = alt
+                    while search_alt > 0:
+                        i -= 1
+                        if i < 0:
+                            break
+                        search_alt = data[i][1
+                                             ]
+                    start = (i + 1)
+                    
+                    self.pass_Data.append([sat.name, data[start:end]])
+                        
         
         self.pass_List.sort(key=lambda x: x[1])
         return self.pass_List
@@ -266,6 +289,13 @@ class LD_PassFinder:
                 az = sat[3]
                 f.write(f"{name}, {time}, {alt:.2f}, {az:.2f}\n")
 
+    def Plot_Good_Passes(self):
+        for sat, data in self.pass_Data:
+            times, alts, azs = data.T
+            times2 = [x.plot_date for x in times]
+            plt.plot(times2, alts)
+        plt.show()
+
 if __name__ == "__main__":
     finder = LD_PassFinder()
     # Set the location of the OGS
@@ -275,7 +305,7 @@ if __name__ == "__main__":
     finder.Search_Time_Range(
             "2020-06-04T23:00:00",
             "2020-06-05T02:00:00",
-            1/60.0
+            1
             )
     
     # Load the TLE data file into the finder.
@@ -299,6 +329,6 @@ if __name__ == "__main__":
     
     #finder.Plot_Passes()
     
-    viable_Passes = finder.Filter_Passes()
+    viable_Passes = finder.Filter_Passes(30)
     finder.Print_Pass_List()
     finder.Save_Pass_List()
