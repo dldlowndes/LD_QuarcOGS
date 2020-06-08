@@ -295,7 +295,7 @@ class LD_PassFinder:
         # Generate the file name which contains the start and stop times of the
         # scan.
         t_fmt = "%Y-%m-%dT%H-%M-%S"
-        filename = "".join(["passes",
+        filename = "".join(["pass_Data/passes",
                             self.t_start.to_datetime(self.my_tz).strftime(t_fmt),
                             " - ",
                             self.t_stop.to_datetime(self.my_tz).strftime(t_fmt),
@@ -376,9 +376,9 @@ if __name__ == "__main__":
             )
     
     # Load the TLE data file into the finder.
-    finder.Load_TLE_Data("visual.txt") 
-    #finder.Load_TLE_Data("active.txt") # a very big list!
-    #finder.Load_TLE_Data("cubesat.txt")
+    finder.Load_TLE_Data("tle_Files/visual.txt") 
+    #finder.Load_TLE_Data("tle_Files/active.txt") # a very big list!
+    #finder.Load_TLE_Data("tle_Files/cubesat.txt")
     #finder.Load_TLE_Data() # Go get Celestrak's "active" list from the internet.
     
     # Find some values in the TLE list.

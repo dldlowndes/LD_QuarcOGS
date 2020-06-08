@@ -74,7 +74,7 @@ class LD_TLE_List:
         return list(self.tle_Dict.values())[index]
 
 if __name__ == "__main__":
-    my_tle_list = LD_TLE_List("active.txt", False)
+    my_tle_list = LD_TLE_List("tle_Files/active.txt", False)
 
     sat_key = my_tle_list.Search_Keys("resurs-dk")
     tle = my_tle_list.tle_Dict[sat_key]
