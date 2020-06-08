@@ -267,7 +267,7 @@ class LD_PassFinder:
                     pass_Data = data[start:end]
                     
                     # Add to the rest.
-                    self.pass_Data.append([sat.name, [time.to_datetime(self.my_tz), alt, az], pass_Data])
+                    self.pass_Data.append([sat, [time.to_datetime(self.my_tz), alt, az], pass_Data])
         
         # Sort the passes into chronological order (by peak time), this makes
         # display and plotting easier and prettier.
@@ -281,7 +281,7 @@ class LD_PassFinder:
         """
         print(f"Name, time, alt, az")
         for sat in self.pass_Data:
-            name = sat[0]
+            name = sat[0].name
             time = str(sat[1][0])
             alt = sat[1][1]
             az = sat[1][2]
@@ -305,7 +305,7 @@ class LD_PassFinder:
         with open(filename, "w") as f:
             f.write(f"Name, time, alt, az\n")
             for sat in self.pass_Data:
-                name = sat[0]
+                name = sat[0].name
                 time = str(sat[1][0])
                 alt = sat[1][1]
                 az = sat[1][2]
@@ -345,6 +345,12 @@ class LD_PassFinder:
             y_data = data["alt"]
             my_ax.plot_date(x_data, y_data, xdate=True,
                             linestyle="-", marker=None)
+            
+            label_text = sat.name.rstrip()
+            label_pos_x = matplotlib.dates.date2num(peak_Info[0])
+            label_pos_y = peak_Info[1]
+            
+            my_ax.text(label_pos_x, label_pos_y, label_text)
         
         # Get the axes looking nice.
         fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
@@ -364,8 +370,8 @@ if __name__ == "__main__":
     # Set the time range to search for passes within.
     # (and the resolution in minutes)
     finder.Search_Time_Range(
-            "2020-06-04T23:00:00",
-            "2020-06-05T06:00:00",
+            "2020-06-08T23:00:00",
+            "2020-06-09T06:00:00",
             1
             )
     
@@ -386,7 +392,7 @@ if __name__ == "__main__":
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes(t3)
+    data = finder.Calculate_Passes()
     
     #finder.Plot_Passes()
     
