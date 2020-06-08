@@ -219,20 +219,29 @@ class LD_PassFinder:
         
     def Filter_Passes(self, alt_Filter):
         """
-        Filter out all of the data from the passes where the satellite is
+        Filter out all of the data from the passes where the satellite peaks
         below "alt_Filter" degrees altitude.
         """
         
-        self.pass_List = []
+        # Container for the pass data, each line will comprise the satellite
+        # [name, [peak time, peak alt, az@peak], pass data] where pass data is
+        # alt/az values for when the satellite is above the horizon.
         self.pass_Data = []
         for sat, data in self.altaz_Data:
+            # Find the local maxima in the each satellite's tracks (there may
+            # be more than one!)
             alt_peaks = scipy.signal.argrelextrema(data["alt"].values, np.greater)[0]
         
+            # Look at each peak separately.
             for peak in alt_peaks:
+                # Get the data at the peak
                 time, alt, az = data.iloc[peak]
-                if alt > alt_Filter:
-                    self.pass_List.append([sat.name, time.to_datetime(self.my_tz), alt, az])
                 
+                # If the peak is high enough to be worth trying to look at.
+                if alt > alt_Filter:
+                    
+                    # First, scan forwards to find when the satellite drops 
+                    # back below the horizon. This finds the end of the pass.
                     i = peak
                     search_alt = alt
                     while search_alt > 0:
@@ -242,6 +251,9 @@ class LD_PassFinder:
                         search_alt = data.iloc[i]["alt"]
                     end = (i - 1)
                     
+                    # Then scan backwards from the peak to find when the
+                    # satellite first came up over the horizon to find the
+                    # start of the pass
                     search_alt = alt
                     while search_alt > 0:
                         i -= 1
@@ -250,22 +262,38 @@ class LD_PassFinder:
                         search_alt = data.iloc[i]["alt"]
                     start = (i + 1)
                     
-                    self.pass_Data.append([sat.name, data[start:end]])
-                        
+                    # Extract the portion of the satellite's track data where
+                    # it was above the horizon *this time*
+                    pass_Data = data[start:end]
+                    
+                    # Add to the rest.
+                    self.pass_Data.append([sat.name, [time.to_datetime(self.my_tz), alt, az], pass_Data])
         
-        self.pass_List.sort(key=lambda x: x[1])
-        return self.pass_List
+        # Sort the passes into chronological order (by peak time), this makes
+        # display and plotting easier and prettier.
+        self.pass_Data.sort(key=lambda x: x[1][0])
+        return self.pass_Data
     
     def Print_Pass_List(self):        
+        """
+        Print each satellite pass as identified by Filter_Passes(). These are
+        already in chronological order so no need to do that.
+        """
         print(f"Name, time, alt, az")
-        for sat in self.pass_List:
+        for sat in self.pass_Data:
             name = sat[0]
-            time = str(sat[1])
-            alt = sat[2]
-            az = sat[3]
+            time = str(sat[1][0])
+            alt = sat[1][1]
+            az = sat[1][2]
             print(f"{name}, {time},\t {alt:.2f},\t {az:.2f}")
             
     def Save_Pass_List(self):
+        """
+        As with Print_Pass_List(), but dump out to a datestamped csv file.
+        """
+        
+        # Generate the file name which contains the start and stop times of the
+        # scan.
         t_fmt = "%Y-%m-%dT%H-%M-%S"
         filename = "".join(["passes",
                             self.t_start.to_datetime(self.my_tz).strftime(t_fmt),
@@ -276,11 +304,11 @@ class LD_PassFinder:
         
         with open(filename, "w") as f:
             f.write(f"Name, time, alt, az\n")
-            for sat in self.pass_List:
+            for sat in self.pass_Data:
                 name = sat[0]
-                time = str(sat[1])
-                alt = sat[2]
-                az = sat[3]
+                time = str(sat[1][0])
+                alt = sat[1][1]
+                az = sat[1][2]
                 f.write(f"{name}, {time}, {alt:.2f}, {az:.2f}\n")
 
     def Plot_All_Passes(self):
@@ -297,23 +325,36 @@ class LD_PassFinder:
         
         
     def Plot_Good_Passes(self):
+        """
+        Plot all passes identified by Filter_Passes() on the same axis.
+        
+        TODO: Prettier
+        TODO: Labelling
+        TODO: Interactive?
+        """
+        
+        # Make an axis that can be repeatedly plotted onto
         fig, my_ax = plt.subplots()
         
-        for sat, data in self.pass_Data:
+        for sat, peak_Info, data in self.pass_Data:
             # TODO: There must be a more elegant way to deal with this!
+            # Make timestamps that matplotlib can understand.
             x_data = [x.plot_date for x in data["time"].values]
+            # Altitude is the only particularly interesting feature for these
+            # purposes (plotting azimuth as well would be confusing)
             y_data = data["alt"]
             my_ax.plot_date(x_data, y_data, xdate=True,
                             linestyle="-", marker=None)
         
+        # Get the axes looking nice.
         fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
         my_ax.xaxis.set_major_formatter(fmt)
         plt.grid(True, which="major", axis="both", linestyle="--")
         plt.grid(True, which="minor", axis="both", linestyle=":")
         plt.minorticks_on()
-        
         plt.xticks(rotation=45)
         plt.ylim(0, 90)
+        
         plt.show()
 
 if __name__ == "__main__":
@@ -345,7 +386,7 @@ if __name__ == "__main__":
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes()
+    data = finder.Calculate_Passes(t3)
     
     #finder.Plot_Passes()
     
