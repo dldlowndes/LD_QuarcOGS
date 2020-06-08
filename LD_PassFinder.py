@@ -8,8 +8,10 @@ import astropy
 import astropy.coordinates
 import astropy.time
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy.signal
 
 import sgp4.api
@@ -203,23 +205,17 @@ class LD_PassFinder:
             # Convert satellite coordinates (relative to earth) into alt/az 
             # from this position on earth (set by Set_Position).
             view = itrs.transform_to(observer)
-            self.altaz_Data.append([tle, np.column_stack((self.utc_Time_Series, view.alt.data, view.az.data))])
+            data = pd.DataFrame({
+                "time": self.utc_Time_Series,
+                "alt": view.alt.data,
+                "az": view.az.data
+                })
+            self.altaz_Data.append([tle, data])
 
         if len(self.errors) > 0:
             print(f"Some errors, see {self.errors}")
 
         return self.altaz_Data
-
-    def Plot_All_Passes(self):
-        """
-        Basic plotting for now. Beware if Calculate_Passes gets given too many
-        satellites this will look like technicolour vomit at best and at worst
-        just crash.
-        """
-        for tle, times, alt, az in self.altaz_Data:
-            plt.plot(alt)
-        plt.ylim(0,90)
-        plt.show()
         
     def Filter_Passes(self, alt_Filter):
         """
@@ -230,21 +226,20 @@ class LD_PassFinder:
         self.pass_List = []
         self.pass_Data = []
         for sat, data in self.altaz_Data:
-            alt_peaks = scipy.signal.argrelextrema(data[:,1], np.greater)[0]
+            alt_peaks = scipy.signal.argrelextrema(data["alt"].values, np.greater)[0]
         
             for peak in alt_peaks:
-                time, alt, az = data[peak]
+                time, alt, az = data.iloc[peak]
                 if alt > alt_Filter:
                     self.pass_List.append([sat.name, time.to_datetime(self.my_tz), alt, az])
                 
                     i = peak
                     search_alt = alt
-                    print(f"{sat.name}, {len(data)}")
                     while search_alt > 0:
                         i += 1
                         if i >= len(data):
                             break
-                        search_alt = data[i][1]
+                        search_alt = data.iloc[i]["alt"]
                     end = (i - 1)
                     
                     search_alt = alt
@@ -252,8 +247,7 @@ class LD_PassFinder:
                         i -= 1
                         if i < 0:
                             break
-                        search_alt = data[i][1
-                                             ]
+                        search_alt = data.iloc[i]["alt"]
                     start = (i + 1)
                     
                     self.pass_Data.append([sat.name, data[start:end]])
@@ -289,11 +283,37 @@ class LD_PassFinder:
                 az = sat[3]
                 f.write(f"{name}, {time}, {alt:.2f}, {az:.2f}\n")
 
+    def Plot_All_Passes(self):
+        """
+        Basic plotting for now. Beware if Calculate_Passes gets given too many
+        satellites this will look like technicolour vomit at best and at worst
+        just crash.
+        """
+        fig, my_ax = plt.subplots()
+        my_ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
+        for sat, data in self.altaz_Data:
+            data.plot(x="time", y="alt", ax=my_ax, rot=90)
+        plt.show()
+        
+        
     def Plot_Good_Passes(self):
+        fig, my_ax = plt.subplots()
+        
         for sat, data in self.pass_Data:
-            times, alts, azs = data.T
-            times2 = [x.plot_date for x in times]
-            plt.plot(times2, alts)
+            # TODO: There must be a more elegant way to deal with this!
+            x_data = [x.plot_date for x in data["time"].values]
+            y_data = data["alt"]
+            my_ax.plot_date(x_data, y_data, xdate=True,
+                            linestyle="-", marker=None)
+        
+        fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
+        my_ax.xaxis.set_major_formatter(fmt)
+        plt.grid(True, which="major", axis="both", linestyle="--")
+        plt.grid(True, which="minor", axis="both", linestyle=":")
+        plt.minorticks_on()
+        
+        plt.xticks(rotation=45)
+        plt.ylim(0, 90)
         plt.show()
 
 if __name__ == "__main__":
@@ -304,7 +324,7 @@ if __name__ == "__main__":
     # (and the resolution in minutes)
     finder.Search_Time_Range(
             "2020-06-04T23:00:00",
-            "2020-06-05T02:00:00",
+            "2020-06-05T06:00:00",
             1
             )
     
@@ -321,7 +341,7 @@ if __name__ == "__main__":
     # Maybe find candidates on https://in-the-sky.org/satpasses.php
     t1 = finder.Search_TLE_Data("zarya") # just the ISS
     t2 = finder.Search_TLE_Data("starlink") # all the starlink satellites (!)
-    t3 = finder.Search_TLE_Data("resurs-dk")
+    t3 = finder.Search_TLE_Data("cosmos")
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
@@ -332,3 +352,5 @@ if __name__ == "__main__":
     viable_Passes = finder.Filter_Passes(30)
     finder.Print_Pass_List()
     finder.Save_Pass_List()
+    
+    finder.Plot_Good_Passes()
