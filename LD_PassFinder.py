@@ -33,12 +33,13 @@ Usage:
     - Use the alt/az vs time data sets for each TLE to choose which to track
 
 TODO: Let Search_Time_Range accept datetime objects (as well as ISO strings)
-TODO: Filter out passes which don't come over the horizon
-TODO: Nicer plotting
+TODO: Filter out passes by azimuth (maybe there's a building in the way?)
 TODO: General QoL improvements
 TODO: GUI?
 TODO: Logging!
 TODO: Figure out if the satellite is in sun (more visible?)
+TODO: Return the most visible satellite *right now*
+TODO: Some sort of scheduler that builds a list of satellites to track sequentially.
 """
 
 class LD_PassFinder:
@@ -265,11 +266,12 @@ class LD_PassFinder:
                     
                     # Extract the portion of the satellite's track data where
                     # it was above the horizon *this time*
-                    pass_Data = data[start:end]
+                    pass_Isolated = data[start:end]
                     
                     # Add to the rest.
                     # NOTE datetime is converted from UTC back to local TZ here!
-                    self.pass_Data.append([sat, [time.to_datetime(self.my_tz), alt, az], pass_Data])
+                    peak_Info = [time.to_datetime(self.my_tz), alt, az]
+                    self.pass_Data.append([sat, peak_Info, pass_Isolated])
         
         # Sort the passes into chronological order (by peak time), this makes
         # display and plotting easier and prettier.
@@ -351,13 +353,15 @@ class LD_PassFinder:
         TODO: Labelling
         TODO: Interactive?
         """
-        
+
         # Make an axis that can be repeatedly plotted onto
         fig, my_ax = plt.subplots()
         
         for sat, peak_Info, data in self.pass_Data:
             # TODO: There must be a more elegant way to deal with this!
             # Make timestamps that matplotlib can understand.
+            # x_data = [matplotlib.dates.date2num(x.to_datetime(self.my_tz))
+            #                                     for x in data["time"].values]
             x_data = [x.plot_date for x in data["time"].values]
             # Altitude is the only particularly interesting feature for these
             # purposes (plotting azimuth as well would be confusing)
@@ -371,16 +375,23 @@ class LD_PassFinder:
             
             my_ax.text(label_pos_x, label_pos_y, label_text)
         
-        # Get the axes looking nice.
+        my_ax.xaxis_date(self.my_tz)
         fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
         my_ax.xaxis.set_major_formatter(fmt)
-        plt.grid(True, which="major", axis="both", linestyle="--")
-        plt.grid(True, which="minor", axis="both", linestyle=":")
-        plt.minorticks_on()
-        plt.xticks(rotation=45)
-        plt.ylim(0, 90)
         
-        plt.show()
+        # Get the axes looking nice.
+        my_ax.xaxis.set_major_locator(matplotlib.dates.MinuteLocator(interval=15))
+        my_ax.grid(True, which="major", axis="both", linestyle="--")
+        
+        my_ax.xaxis.set_minor_locator(matplotlib.dates.MinuteLocator(interval=5))
+        my_ax.grid(True, which="minor", axis="both", linestyle=":")
+        
+        my_ax.xaxis.set_tick_params(rotation=90)
+
+        my_ax.set_ylim(0, 90)
+        my_ax.set_xlim(self.t_start.plot_date, self.t_stop.plot_date)
+        
+        fig.show()
 
 if __name__ == "__main__":
     finder = LD_PassFinder()
@@ -411,7 +422,7 @@ if __name__ == "__main__":
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes()
+    data = finder.Calculate_Passes(t3)
     
     #finder.Plot_Passes()
     

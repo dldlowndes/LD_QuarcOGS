@@ -40,6 +40,8 @@ def Get_Tonights_Passes():
     # finder.Print_Pass_List()
     # finder.Save_Pass_List()
     
+    finder.Plot_Good_Passes()
+    
     return data
     
 if __name__ == "__main__":
