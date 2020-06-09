@@ -32,6 +32,7 @@ Usage:
     calculates for ALL the satellites in its internal list (this can be a lot!)
     - Use the alt/az vs time data sets for each TLE to choose which to track
 
+TODO: Let Search_Time_Range accept datetime objects (as well as ISO strings)
 TODO: Filter out passes which don't come over the horizon
 TODO: Nicer plotting
 TODO: General QoL improvements
@@ -267,6 +268,7 @@ class LD_PassFinder:
                     pass_Data = data[start:end]
                     
                     # Add to the rest.
+                    # NOTE datetime is converted from UTC back to local TZ here!
                     self.pass_Data.append([sat, [time.to_datetime(self.my_tz), alt, az], pass_Data])
         
         # Sort the passes into chronological order (by peak time), this makes
@@ -274,19 +276,37 @@ class LD_PassFinder:
         self.pass_Data.sort(key=lambda x: x[1][0])
         return self.pass_Data
     
-    def Print_Pass_List(self):        
+    def Get_Pass_List(self):
         """
-        Print each satellite pass as identified by Filter_Passes(). These are
-        already in chronological order so no need to do that.
+        Return a neat list of just the TLE, peak time, peak alt, az@peak
         """
-        print(f"Name, time, alt, az")
+        
+        pass_List = []
         for sat in self.pass_Data:
             name = sat[0].name
             time = str(sat[1][0])
             alt = sat[1][1]
             az = sat[1][2]
-            print(f"{name}, {time},\t {alt:.2f},\t {az:.2f}")
-            
+            pass_List.append({
+                "satellite": name.rstrip(),
+                "time": time,
+                "alt": alt,
+                "az": az
+                })
+        return pd.DataFrame(pass_List)
+    
+    def Print_Pass_List(self):        
+        """
+        Print each satellite pass as identified by Filter_Passes(). These are
+        already in chronological order so no need to do that.
+        """
+
+        data = self.Get_Pass_List()
+        # Well, Pandas does have some redeeming features.
+        printable = data.to_string()
+        print(printable)
+        return printable
+        
     def Save_Pass_List(self):
         """
         As with Print_Pass_List(), but dump out to a datestamped csv file.
@@ -304,12 +324,11 @@ class LD_PassFinder:
         
         with open(filename, "w") as f:
             f.write(f"Name, time, alt, az\n")
-            for sat in self.pass_Data:
-                name = sat[0].name
-                time = str(sat[1][0])
-                alt = sat[1][1]
-                az = sat[1][2]
-                f.write(f"{name}, {time}, {alt:.2f}, {az:.2f}\n")
+            data = self.Get_Pass_List()
+            
+            for i, item in data.iterrows():
+                f.write(f"{item.satellite}, {item.time}, {item.alt}, {item.az}\n")
+        return data.to_string()
 
     def Plot_All_Passes(self):
         """

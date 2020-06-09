@@ -72,6 +72,14 @@ class LD_TLE_List:
         object iterable.
         """
         return list(self.tle_Dict.values())[index]
+    
+    @property
+    def Keys(self):
+        return self.tle_Dict.keys()
+    
+    @property
+    def TLEs(self):
+        return self.tle_Dict.values()
 
 if __name__ == "__main__":
     my_tle_list = LD_TLE_List("tle_Files/active.txt", False)

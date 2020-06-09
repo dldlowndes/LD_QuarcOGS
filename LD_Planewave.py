@@ -2,13 +2,15 @@ import requests
 
 import LD_PWI_Status
 
+import LD_MyTLE
+
 # TODO:
 #   - Handle errors gracefully
 #   - Some option to enable/disable single axes (should both axes be default though?)
 #   - Get some documentation about these functions (email sent, awaiting reply)
 #   - Verify TLEs before sending?
 
-class Planewave_Mount:
+class LD_Planewave:
     """
     Interface to the telescope mount controlled by the PWI4 software.
     Currently only the mount is supported (ie not the focusser etc)
@@ -157,7 +159,7 @@ class Planewave_Mount:
                 }
         elif isinstance(tle, dict):
             tle_Payload = tle
-        elif isinstance(tle, My_TLE):
+        elif isinstance(tle, LD_MyTLE.LD_MyTLE):
             tle_Payload = tle.Dict
         
         response = self._SendMsg(["mount", "follow_tle"],
@@ -167,7 +169,7 @@ class Planewave_Mount:
 
 
 if __name__ == "__main__":
-    myMount = Planewave_Mount("http://127.0.0.1", "8220")
+    myMount = LD_Planewave("http://127.0.0.1", "8220")
     myMount.Connect()
     print(myMount.status)
     
