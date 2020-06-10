@@ -3,7 +3,7 @@ import time
 from PyQt5 import QtCore
 
 
-class worker_Thread(QtCore.QThread):
+class telescope_Thread(QtCore.QThread):
     """
     Do some work. Emit signals when results are ready
     """

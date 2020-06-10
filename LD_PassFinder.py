@@ -59,7 +59,7 @@ class LD_PassFinder:
                                                       height=height * astropy.units.m)
         return self.here
 
-    def Search_Time_Range(self, t_start, t_stop, t_interval):
+    def Search_Time_Range(self, t_start, t_stop, t_step):
         """
         Provide ISO8601 compatible date&time strings for start/stop.
         (or python datetime objects)
@@ -73,7 +73,7 @@ class LD_PassFinder:
         # Interpret the time stamp input and convert into UTC astropy Time objects
         self.t_start = self._Timestamp_Convert(t_start)
         self.t_stop = self._Timestamp_Convert(t_stop)
-        self.t_step = datetime.timedelta(minutes=t_interval)
+        self.t_step = datetime.timedelta(minutes=t_step)
 
         # Make all the time stamps that we want data for.
         # I'm sure there's a more elegant way of doing this but it works.
