@@ -39,15 +39,20 @@ class satellites_Thread(QtCore.QThread):
         self.finder = LD_PassFinder.LD_PassFinder()
         
     def Load_List(self, filename):
-        self.my_TLE_List = LD_TLEList.LD_TLE_List(filename, False)
-        self.tles_Signal.emit(list(self.my_TLE_List.TLEs))
+        self.my_TLE_List = LD_TLEList.LD_TLEList(filename)
+        self.finder.Load_TLE_Data(self.my_TLE_List)
+        self.tles = self.finder.Search_TLE_Data("")
+        self.tles_Signal.emit(self.tles)
+        
+    def Search_List(self, search):
+        self.tles = self.finder.Search_TLE_Data(search)
+        self.tles_Signal.emit(self.tles)
 
     def run(self):
         self.finder.Set_Position(self.lat, self.lon, self.height)
         self.finder.Search_Time_Range(self.t_start, self.t_stop, self.t_step)
-        self.finder.Load_TLE_Data(self.my_TLE_List)
         
-        self.finder.Calculate_Passes()
+        self.finder.Calculate_Passes(self.tles)
         self.finder.Filter_Passes(alt_Filter = self.degrees)
         
         data = self.finder.Get_Pass_List()

@@ -3,23 +3,39 @@ import warnings
 
 import LD_MyTLE
 
-class LD_TLE_List:
+class LD_TLEList:
     """
     Get TLE database from a file (local or internet).
     """
-    def __init__(self, path, fetch_from_internet):
+    def __init__(self, path=None):
         """
         Get the TLE data and sort it into a nice structure.
         """
-        if fetch_from_internet:
-            # Get list from the internet.
-            req = requests.get(path)
-            flatlist = req.text.split("\r\n")
+        if (path == "") or isinstance(path, type(None)):
+            # Get list from the internet later.
+            print(f""""
+                  No TLE list loaded initially; use Load_TLEs_From_URL to get
+                  list from a website or use Load_TLEs_From_File to load a
+                  local file.
+                  """)
+            pass
         else:
             # Load the list locally.
-            data = open(path).read()
-            flatlist = data.split("\n")
+            self.Load_TLEs_From_File(path)
 
+    def Load_TLEs_From_File(self, path):
+        data = open(path).read()
+        flatlist = data.split("\n")
+        
+        self._Parse_File(flatlist)
+        
+    def Load_TLEs_From_URL(self, url):
+        req = requests.get(url)
+        flatlist = req.text.split("\r\n")
+        
+        self._Parse_File(flatlist)
+
+    def _Parse_File(self, flatlist):
         # Every 3rd line is a satellite name. Extract them and trim the whitespace off.
         tle_Names = map(lambda x: x.rstrip(), flatlist[0::3])
         # Reshape the data from the file grouped into threes
@@ -29,6 +45,7 @@ class LD_TLE_List:
 
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}
+        
 
     def Search_Keys(self, search_String):
         """
@@ -36,8 +53,7 @@ class LD_TLE_List:
         """
 
         search_Keys = list(filter(lambda x: search_String.lower() in x.lower(), self.tle_Dict.keys()))
-        if len(search_Keys) == 1:
-            search_Keys = search_Keys[0]
+
         return search_Keys
 
     def Search_And_Return(self, search_String):
@@ -49,10 +65,13 @@ class LD_TLE_List:
         """
         search_Keys = self.Search_Keys(search_String)
 
-        if isinstance(search_Keys, str):
-            return self.Get_TLE(search_Keys)
-        else:
-            return [self.Get_TLE(key) for key in search_Keys]
+        # if isinstance(search_Keys, str):
+        #     return self.Get_TLE(search_Keys)
+        # else:
+        return [self.Get_TLE(key) for key in search_Keys]
+
+    def Filter_List(self, search_String):
+        pass
 
     def Get_TLE_String(self, key):
         """
@@ -82,9 +101,9 @@ class LD_TLE_List:
         return self.tle_Dict.values()
 
 if __name__ == "__main__":
-    my_tle_list = LD_TLE_List("tle_Files/active.txt", False)
+    my_tle_list = LD_TLE_List("tle_Files/active.txt")
 
     sat_key = my_tle_list.Search_Keys("resurs-dk")
-    tle = my_tle_list.tle_Dict[sat_key]
+    tle = my_tle_list.tle_Dict[sat_key[0]]
 
     print(tle)

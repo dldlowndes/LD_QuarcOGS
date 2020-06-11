@@ -130,12 +130,13 @@ class LD_PassFinder:
         """
         
         if isinstance(tle_List, str):
-            self.tle_List = LD_TLEList.LD_TLE_List(tle_List, False)
-        elif isinstance(tle_List, LD_TLEList.LD_TLE_List):
+            self.tle_List = LD_TLEList.LD_TLEList(tle_List)
+        elif isinstance(tle_List, LD_TLEList.LD_TLEList):
             self.tle_List = tle_List
         elif isinstance(tle_List, type(None)):
             url = "https://www.celestrak.com/NORAD/elements/active.txt"
-            self.tle_List = LD_TLEList.LD_TLE_List(url, True)
+            self.tle_List = LD_TLEList.LD_TLEList()
+            self.tle_List.Load_TLEs_From_URL(url)
         else:
             warnings.warn("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
 
@@ -159,10 +160,10 @@ class LD_PassFinder:
 
         # Get the input into the right form for the following
         if isinstance(satellites, LD_MyTLE.LD_MyTLE):
-            print(f"One TLE: {satellites.name}")
+            #print(f"One TLE: {satellites.name}")
             sats = [satellites,]
         elif isinstance(satellites, list):
-            print(f"List: {[x.name.rstrip() for x in satellites]}")
+            #print(f"List: {[x.name.rstrip() for x in satellites]}")
             sats = satellites
         else:
             sats = list(self.tle_List)
@@ -400,8 +401,8 @@ if __name__ == "__main__":
     # Set the time range to search for passes within.
     # (and the resolution in minutes)
     finder.Search_Time_Range(
-            "2020-06-08T23:00:00",
-            "2020-06-09T06:00:00",
+            "2020-06-11T22:00:00",
+            "2020-06-12T06:00:00",
             1
             )
     
@@ -422,11 +423,11 @@ if __name__ == "__main__":
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes(t3)
+    data = finder.Calculate_Passes(t1)
     
     #finder.Plot_Passes()
     
-    viable_Passes = finder.Filter_Passes(30)
+    viable_Passes = finder.Filter_Passes(0)
     finder.Print_Pass_List()
     finder.Save_Pass_List()
     

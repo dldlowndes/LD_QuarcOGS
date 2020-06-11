@@ -49,10 +49,15 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def Init_Connections(self):
         self.ui.button_LoadFile.clicked.connect(self.On_Load_Button)
+        self.ui.button_Search.clicked.connect(self.On_Search_Button)
         self.ui.button_Process.clicked.connect(self.On_Process_Button)
         
     def On_Load_Button(self):
         self.satellites_Thread.Load_List(self.ui.value_Filename.text())
+        
+    def On_Search_Button(self):
+        search = self.ui.value_Search.text()
+        self.satellites_Thread.Search_List(search)
         
     def On_Process_Button(self):
         self.satellites_Thread.lat = float(self.ui.value_Lat.text())
