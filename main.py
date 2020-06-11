@@ -68,11 +68,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.satellites_Thread.t_stop = self.ui.date_Stop.dateTime().toString(QtCore.Qt.ISODate)
         self.satellites_Thread.t_step = self.ui.value_Resolution.value()
         
-        self.satellites_Thread.alt = self.ui.value_Degrees.value()
+        self.satellites_Thread.degrees = self.ui.value_Degrees.value()
         
-        print(f"{self.satellites_Thread.lat}, {self.satellites_Thread.lon}, {self.satellites_Thread.height}")
-        print(f"{self.satellites_Thread.t_start}, {self.satellites_Thread.t_stop}, {self.satellites_Thread.t_step}")
-
         self.ui.table_Passes.setRowCount(0)
         self.ui.label_Status.setText("Status: Processing")
         self.satellites_Thread.start()

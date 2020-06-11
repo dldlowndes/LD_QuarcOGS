@@ -49,6 +49,9 @@ class satellites_Thread(QtCore.QThread):
         self.tles_Signal.emit(self.tles)
 
     def run(self):
+        print(f"{self.lat}, {self.lon}, {self.height}")
+        print(f"{self.t_start}, {self.t_stop}, {self.t_step}")
+        print(f"{self.degrees}")
         self.finder.Set_Position(self.lat, self.lon, self.height)
         self.finder.Search_Time_Range(self.t_start, self.t_stop, self.t_step)
         
