@@ -233,9 +233,9 @@ class Ui_MainWindow(object):
         self.tab_Graph.setObjectName("tab_Graph")
         self.gridLayout_14 = QtWidgets.QGridLayout(self.tab_Graph)
         self.gridLayout_14.setObjectName("gridLayout_14")
-        self.widget_Graph = QtWidgets.QWidget(self.tab_Graph)
-        self.widget_Graph.setObjectName("widget_Graph")
-        self.gridLayout_14.addWidget(self.widget_Graph, 0, 0, 1, 1)
+        self.layout_Graph = QtWidgets.QGridLayout()
+        self.layout_Graph.setObjectName("layout_Graph")
+        self.gridLayout_14.addLayout(self.layout_Graph, 0, 0, 1, 1)
         self.tabs_Calculator.addTab(self.tab_Graph, "")
         self.gridLayout_7.addWidget(self.tabs_Calculator, 0, 0, 1, 1)
         self.gridLayout_8.addWidget(self.group_SatCalc, 0, 0, 1, 1)
@@ -276,7 +276,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs_Calculator.setCurrentIndex(1)
+        self.tabs_Calculator.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

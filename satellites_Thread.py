@@ -16,7 +16,7 @@ class satellites_Thread(QtCore.QThread):
     # Separate so mode can
     # be easily toggled on/off.
     tles_Signal = QtCore.pyqtSignal(list)
-    passes_Signal = QtCore.pyqtSignal(pd.DataFrame)
+    passes_Signal = QtCore.pyqtSignal(list)
 
     def __init__(self):
         QtCore.QThread.__init__(self)
@@ -56,9 +56,7 @@ class satellites_Thread(QtCore.QThread):
         self.finder.Search_Time_Range(self.t_start, self.t_stop, self.t_step)
         
         self.finder.Calculate_Passes(self.tles)
-        self.finder.Filter_Passes(alt_Filter = self.degrees)
-        
-        data = self.finder.Get_Pass_List()
+        data = self.finder.Filter_Passes(alt_Filter = self.degrees)
 
         self.passes_Signal.emit(data)
 

@@ -423,7 +423,7 @@ if __name__ == "__main__":
     
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    data = finder.Calculate_Passes(t1)
+    data = finder.Calculate_Passes(t3)
     
     #finder.Plot_Passes()
     

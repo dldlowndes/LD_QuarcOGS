@@ -5,6 +5,7 @@ TODO:
     - Load TLEs from internet.
     - Load multiple TLE files to the same processing session
     - Figure out some way of live showing finder process.
+    - Pretty up the plot.
 """
 
 # pylint: disable=C0103
@@ -14,6 +15,11 @@ import datetime
 import sys
 
 from PyQt5 import QtWidgets, QtCore, QtGui
+import matplotlib
+from matplotlib.backends.backend_qt5agg import (
+        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.figure import Figure
+
 import mainwindow
 import satellites_Thread
 import telescope_Thread
@@ -31,6 +37,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.Init_Defaults()
         self.Init_Threads()
         self.Init_Connections()
+        self.Init_Plot()
         
     def Init_Defaults(self):
         """
@@ -81,6 +88,67 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_Search.clicked.connect(self.On_Search_Button)
         self.ui.button_Process.clicked.connect(self.On_Process_Button)
         
+    def Init_Plot(self):
+        self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        self.ui.layout_Graph.addWidget(NavigationToolbar(self.canvas, self))
+        self.ui.layout_Graph.addWidget(self.canvas)
+        self.axes = self.canvas.figure.subplots()
+        self.canvas.figure.subplots_adjust(left=0.05,
+                                    right=0.95,
+                                    top=0.98,
+                                    bottom=0.175)
+        
+        # self.axes.set_xlim(-1, 1)
+        # self.axes.set_ylim(-1, 1)
+        # self.axes.minorticks_on()
+        # self.axes.grid(which="major",
+        #                 linestyle="-",
+        #                 linewidth=0.5,
+        #                 color="black")
+        # self.axes.grid(which="minor",
+        #                 linestyle=":",
+        #                 linewidth=0.5,
+        #                 color="grey")
+        
+    def Update_Plot(self, pass_Data):
+        self.axes.xaxis_date(self.satellites_Thread.finder.my_tz)
+        #fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
+        fmt = matplotlib.dates.DateFormatter("%H:%M")
+        self.axes.xaxis.set_major_formatter(fmt)
+        
+        # Get the axes looking nice.
+        self.axes.xaxis.set_major_locator(matplotlib.dates.MinuteLocator(interval=30))
+        self.axes.grid(True, which="major", axis="both", linestyle="--")
+        
+        self.axes.xaxis.set_minor_locator(matplotlib.dates.MinuteLocator(interval=5))
+        self.axes.grid(True, which="minor", axis="both", linestyle=":")
+        
+        self.axes.xaxis.set_tick_params(rotation=90)
+
+        self.axes.set_ylim(0, 90)
+        self.axes.set_xlim(self.satellites_Thread.finder.t_start.plot_date,
+                       self.satellites_Thread.finder.t_stop.plot_date)
+        
+        for sat, peak_Info, data in pass_Data:
+            # TODO: There must be a more elegant way to deal with this!
+            # Make timestamps that matplotlib can understand.
+            # x_data = [matplotlib.dates.date2num(x.to_datetime(self.my_tz))
+            #                                     for x in data["time"].values]
+            x_data = [x.plot_date for x in data["time"].values]
+            # Altitude is the only particularly interesting feature for these
+            # purposes (plotting azimuth as well would be confusing)
+            y_data = data["alt"]
+            self.axes.plot_date(x_data, y_data, xdate=True,
+                                linestyle="-", marker=None)
+            
+            label_text = sat.name.rstrip()
+            label_pos_x = matplotlib.dates.date2num(peak_Info[0])
+            label_pos_y = peak_Info[1]
+            
+            self.axes.text(label_pos_x, label_pos_y, label_text)
+        
+        self.canvas.draw()
+        
     def On_Load_Button(self):
         """
         Load a TLE list from file.
@@ -117,8 +185,11 @@ class MyWindow(QtWidgets.QMainWindow):
         
         # Clear the passes table since we're about to start reprocessing.
         # Persisting data would be confusing since they might be for different
-        # parameters than shown in the GUI
+        # parameters than shown in the GUI.
+        # Also clear the plot.
         self.ui.table_Passes.setRowCount(0)
+        self.axes.clear()
+        self.canvas.draw()
         # Until I figure out a better way of showing process, just let the
         # user know this is doing something.
         self.ui.label_Status.setText("Status: Processing")
@@ -141,7 +212,7 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_TLEs.setItem(i, 2, QtWidgets.QTableWidgetItem(tle[2]))
         
     
-    def On_Passes_Signal(self, data):
+    def On_Passes_Signal(self, pass_Data):
         """
         Fill the table in the passes tab (and the graph tab?)
         """
@@ -152,13 +223,18 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.label_Status.setText("Status: Inactive")
         
         # Fill the table with new data.
-        for i, line in data.iterrows():
+        for i, sat in enumerate(pass_Data):
+            name = sat[0].name.rstrip()
+            time = str(sat[1][0])
+            alt = sat[1][1]
+            az = sat[1][2]
             self.ui.table_Passes.insertRow(i)
-            self.ui.table_Passes.setItem(i, 0, QtWidgets.QTableWidgetItem(line.satellite)) #name
-            self.ui.table_Passes.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{line.alt:0.2f}")) #alt
-            self.ui.table_Passes.setItem(i, 2, QtWidgets.QTableWidgetItem(line.time)) #time
-            self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{line.az:0.2f}")) #az
+            self.ui.table_Passes.setItem(i, 0, QtWidgets.QTableWidgetItem(name)) #name
+            self.ui.table_Passes.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{alt:0.2f}")) #alt
+            self.ui.table_Passes.setItem(i, 2, QtWidgets.QTableWidgetItem(time)) #time
+            self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{az:0.2f}")) #az
         
+        self.Update_Plot(pass_Data)
 
 app = QtWidgets.QApplication([])
 

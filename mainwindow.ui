@@ -90,7 +90,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabs_Calculator">
             <property name="currentIndex">
-             <number>1</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="tab_TLEs">
              <attribute name="title">
@@ -372,7 +372,7 @@
              </attribute>
              <layout class="QGridLayout" name="gridLayout_14">
               <item row="0" column="0">
-               <widget class="QWidget" name="widget_Graph" native="true"/>
+               <layout class="QGridLayout" name="layout_Graph"/>
               </item>
              </layout>
             </widget>
