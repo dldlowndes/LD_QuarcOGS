@@ -6,6 +6,7 @@ TODO:
     - Load multiple TLE files to the same processing session
     - Figure out some way of live showing finder process.
     - Pretty up the plot.
+    - Button to get lat/lon/height from mount if available
 """
 
 # pylint: disable=C0103
@@ -22,7 +23,7 @@ from matplotlib.figure import Figure
 
 import mainwindow
 import satellites_Thread
-#import telescope_Thread
+import telescope_Thread
 
 class MyWindow(QtWidgets.QMainWindow):
     """
@@ -64,6 +65,10 @@ class MyWindow(QtWidgets.QMainWindow):
 
         # 30 degrees high enough?
         self.ui.value_Degrees.setValue(30)
+        
+        # The telescope is *probably* connected to the local machine.
+        self.ui.value_ip.setText("http://127.0.0.1")
+        self.ui.value_port.setText("8220")
 
     def Init_Threads(self):
         """
@@ -78,6 +83,13 @@ class MyWindow(QtWidgets.QMainWindow):
 
         # For when the viable passes have been calculated.
         self.satellites_Thread.passes_Signal.connect(self.On_Passes_Signal)
+        
+        # Controls the telescope.
+        self.telescope_Thread = telescope_Thread.telescope_Thread()
+        
+        # Update of the telescope status. I suppose this will emit quite
+        # frequently.
+        self.telescope_Thread.status_Signal.connect(self.On_Telescope_Status)
 
     def Init_Connections(self):
         """
@@ -87,6 +99,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_LoadFile.clicked.connect(self.On_Load_Button)
         self.ui.button_Search.clicked.connect(self.On_Search_Button)
         self.ui.button_Process.clicked.connect(self.On_Process_Button)
+        
+        self.ui.button_Connect.clicked.connect(self.On_Connect_Button)
 
     def Init_Plot(self):
         """
@@ -224,12 +238,29 @@ class MyWindow(QtWidgets.QMainWindow):
             alt = sat[1][1]
             az = sat[1][2]
             self.ui.table_Passes.insertRow(i)
-            self.ui.table_Passes.setItem(i, 0, QtWidgets.QTableWidgetItem(name)) #name
-            self.ui.table_Passes.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{alt:0.2f}")) #alt
-            self.ui.table_Passes.setItem(i, 2, QtWidgets.QTableWidgetItem(time)) #time
-            self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{az:0.2f}")) #az
+            self.ui.table_Passes.setItem(i, 0, QtWidgets.QTableWidgetItem(name))
+            self.ui.table_Passes.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{alt:0.2f}"))
+            self.ui.table_Passes.setItem(i, 2, QtWidgets.QTableWidgetItem(time))
+            self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{az:0.2f}"))
 
         self.Update_Plot(pass_Data)
+    
+    def On_Connect_Button(self):
+        ip = self.ui.value_ip.text()
+        port = self.ui.value_port.text()
+        self.telescope_Thread.Connect(ip, port)
+        self.telescope_Thread.start()
+    
+    def On_Telescope_Status(self, pwi_Status):
+        """
+        
+        """
+        self.ui.value_lat.setText(pwi_Status.site.latitude)
+        self.ui.value_lon.setText(pwi_Status.site.longitude)
+        self.ui.value_height.setText(pwi_Status.site.height)
+        lst = pwi_Status.site.lst
+        self.ui.value_lst.setText(lst)
+    
 
 app = QtWidgets.QApplication([])
 

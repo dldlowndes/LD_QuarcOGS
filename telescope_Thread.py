@@ -2,6 +2,9 @@ import time
 
 from PyQt5 import QtCore
 
+import LD_Planewave
+import LD_PWI_Status
+
 
 class telescope_Thread(QtCore.QThread):
     """
@@ -11,31 +14,31 @@ class telescope_Thread(QtCore.QThread):
     # Signals to carry the collected data out of the thread.
     # Separate so mode can
     # be easily toggled on/off.
-    output_Signal = QtCore.pyqtSignal(float)
+    status_Signal = QtCore.pyqtSignal(LD_PWI_Status.LD_PWI_Status)
 
-    def __init__(self, init_Value):
+    def __init__(self):
         QtCore.QThread.__init__(self)
 
         # Flags.
         # Practically the thread will probably remain active whilever
         # the program is running.
-        self.thread_Active = True
-
-        self.running = False
+        self.thread_Active = False
         
-        self.value = init_Value
+        self.mount = LD_Planewave.LD_Planewave()
+
+    def Connect(self, ip_Address, port):
+        self.mount.Connect_IP(ip_Address, port)
+        self.thread_Active = True
+        
+    def Disconnect(self):
+        self.thread_Active = False
+        self.mount.Disconnect()
 
     def run(self):
         while self.thread_Active:
-            if self.running:            
-                self.value += 1
-                print(f"value: {self.value}")
-                self.output_Signal.emit(self.value)
-            else:
-                pass
-            
+            status = self.mount.Status()
+            self.status_Signal.emit(status)
             time.sleep(1)
-
 
     def stop(self):
         self.thread_Active = False

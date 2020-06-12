@@ -1,4 +1,4 @@
-class PWI_Status:
+class LD_PWI_Status:
     """
     Big class to hold all the statuses reported by PWI4
     """
@@ -33,13 +33,14 @@ class PWI_Status:
             line = line.decode()
             dotted_keys, value = line.split("=")
             string_status[dotted_keys] = value
-            print(line)
+            #print(line)
         
         self.version = string_status["pwi4.version"]
         
         self.site.latitude = string_status["site.latitude_degs"]
         self.site.longitude = string_status["site.longitude_degs"]
         self.site.height = string_status["site.height_meters"]
+        self.site.lst = string_status["site.lmst_hours"]
         
         self.mount.is_connected = string_status["mount.is_connected"]
         self.mount.geometry = string_status["mount.geometry"]

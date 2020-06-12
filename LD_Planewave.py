@@ -16,11 +16,17 @@ class LD_Planewave:
     Currently only the mount is supported (ie not the focusser etc)
     """
 
-    def __init__(self, ip_Address="http://127.0.0.1", port="8220"):
+    def __init__(self, ip_Address="", port=""):
+        if ip_Address != "":
+            self.Connect(ip_Address, port)
+        else:
+            print("No IP address supplied (yet). Use Connect_IP(ip, port) later")
+        
+    def Connect_IP(self, ip_Address="http://127.0.0.1", port="8220"):
         self.base_Url = f"{ip_Address}:{port}"
 
         # Dictionary containing the status message of the device.
-        self.status = LD_PWI_Status.PWI_Status()
+        self.status = LD_PWI_Status.LD_PWI_Status()
     
     def _SendMsg(self, command, **kwargs):
         """
