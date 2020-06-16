@@ -20,6 +20,7 @@ import matplotlib
 from matplotlib.backends.backend_qt5agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
+import tzlocal
 
 import mainwindow
 import satellites_Thread
@@ -57,8 +58,8 @@ class MyWindow(QtWidgets.QMainWindow):
         # Default is to start "tonight" and stop "tomorrow morning". Should be
         # a good enough starting point. As is processing every minute.
         t_now = datetime.datetime.now()
-        t_start = datetime.datetime(t_now.year, t_now.month, t_now.day, 22, 00)
-        t_stop = t_start + datetime.timedelta(hours=8)
+        t_start = t_now #datetime.datetime(t_now.year, t_now.month, t_now.day, 22, 00)
+        t_stop = t_start + datetime.timedelta(hours=2)
         self.ui.date_Start.setDateTime(QtCore.QDateTime(t_start))
         self.ui.date_Stop.setDateTime(QtCore.QDateTime(t_stop))
         self.ui.value_Resolution.setValue(1)
@@ -90,6 +91,7 @@ class MyWindow(QtWidgets.QMainWindow):
         # Update of the telescope status. I suppose this will emit quite
         # frequently.
         self.telescope_Thread.status_Signal.connect(self.On_Telescope_Status)
+        self.telescope_Thread.waiting_Signal.connect(self.On_Waiting_Update)
 
     def Init_Connections(self):
         """
@@ -101,6 +103,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_Process.clicked.connect(self.On_Process_Button)
         
         self.ui.button_Connect.clicked.connect(self.On_Connect_Button)
+        
+        self.ui.table_Passes.doubleClicked.connect(self.On_Pass_Click)
+        self.ui.table_Waiting.doubleClicked.connect(self.On_Waiting_Click)
 
     def Init_Plot(self):
         """
@@ -216,7 +221,7 @@ class MyWindow(QtWidgets.QMainWindow):
         # Fill table with new data.
         for i, tle in enumerate(tle_List):
             self.ui.table_TLEs.insertRow(i)
-            self.ui.table_TLEs.setItem(i, 0, QtWidgets.QTableWidgetItem(tle.name))
+            self.ui.table_TLEs.setItem(i, 0, QtWidgets.QTableWidgetItem(tle.name.rstrip()))
             self.ui.table_TLEs.setItem(i, 1, QtWidgets.QTableWidgetItem(tle[1]))
             self.ui.table_TLEs.setItem(i, 2, QtWidgets.QTableWidgetItem(tle[2]))
 
@@ -244,23 +249,88 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{az:0.2f}"))
 
         self.Update_Plot(pass_Data)
-    
+
     def On_Connect_Button(self):
+        """
+        Connect to the telescope HTTP server based on the IP address specified.
+        """
         ip = self.ui.value_ip.text()
         port = self.ui.value_port.text()
         self.telescope_Thread.Connect(ip, port)
         self.telescope_Thread.start()
-    
+
     def On_Telescope_Status(self, pwi_Status):
         """
-        
+        The telescope periodically emits its status, update the GUI with the
+        new data.
         """
+
         self.ui.value_lat.setText(pwi_Status.site.latitude)
         self.ui.value_lon.setText(pwi_Status.site.longitude)
         self.ui.value_height.setText(pwi_Status.site.height)
         lst = pwi_Status.site.lst
         self.ui.value_lst.setText(lst)
-    
+
+    def On_Pass_Click(self, rowcol):
+        """
+        Clicking on a pass in the pass list adds it to a queue, when the pass
+        gets close (in time), the telescope will track it.
+        Refuses to add TLEs where the calculated pass data is minimal (so the
+        start and stop time are the same) - likely these passes wouldn't be of
+        any interesting use anyway.
+        """
+        
+        # The signal from the table gives the ID of the element clicked so get
+        # the corresponding TLE and pass data for this.
+        line = self.satellites_Thread.pass_Data[rowcol.row()]
+        tle = line[0]
+
+        # Check it's a worthwhile pass
+        if len(line[2]) > 1:
+            # Get the time the satellite goes above/below the horizon. (even
+            # if there's an alt filter in the pass finder, this way the
+            # telescope will definitely have found the satellite by the time
+            # it's nice and high in the sky)            
+            start = line[2].iloc[0].time.to_datetime(tzlocal.get_localzone())
+            stop = line[2].iloc[-1].time.to_datetime(tzlocal.get_localzone())
+
+            # Let the telescope thread know about the waiting pass.
+            # (satellite thread then emits which is captured by On_Waiting_Update)
+            self.telescope_Thread.Add_Waiting_TLE(tle, start, stop)
+        else:
+            print("""Insufficient data for pass, it's probably barely over the
+                  horizon. Not added to tracking queue.""")
+        
+    def On_Waiting_Click(self, rowcol):
+        """
+        Clicking on a pass in the waiting list will remove it (and cancel it)
+        """
+        
+        # Get the clicked element's row and tell the telescope thread which
+        # row it was. self.On_Waiting_Update ensures that the table row number
+        # and the internal list element number correspond to each other.
+        row = rowcol.row()
+        self.telescope_Thread.Remove_Waiting_TLE(row)
+        
+    def On_Waiting_Update(self, waiting_List):
+        """
+        In order to keep track of the elements in the waiting list, redraw it
+        whenever it changes. I guess this would be a bad idea if it were a
+        more updated element but realistically it's not going to get hit that
+        hard.
+        """
+        
+        self.ui.table_Waiting.setRowCount(0)
+        for i, row in enumerate(waiting_List):
+            name = row[0].name
+            start = row[1]
+            stop = row[2]
+            self.ui.table_Waiting.insertRow(i)
+            self.ui.table_Waiting.setItem(i, 0, QtWidgets.QTableWidgetItem(name))
+            self.ui.table_Waiting.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{start}"))
+            self.ui.table_Waiting.setItem(i, 2, QtWidgets.QTableWidgetItem(f"{stop}"))
+        
+        
 
 app = QtWidgets.QApplication([])
 

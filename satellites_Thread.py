@@ -26,7 +26,7 @@ class satellites_Thread(QtCore.QThread):
         # the program is running.
         self.thread_Active = False      
         
-        self.my_TLE_List = None
+        self.my_TLE_List = []
         self.lat = None
         self.lon = None
         self.height = None
@@ -56,9 +56,9 @@ class satellites_Thread(QtCore.QThread):
         self.finder.Search_Time_Range(self.t_start, self.t_stop, self.t_step)
         
         self.finder.Calculate_Passes(self.tles)
-        data = self.finder.Filter_Passes(alt_Filter = self.degrees)
+        self.pass_Data = self.finder.Filter_Passes(alt_Filter = self.degrees)
 
-        self.passes_Signal.emit(data)
+        self.passes_Signal.emit(self.pass_Data)
 
     def stop(self):
         self.thread_Active = False
