@@ -6,7 +6,9 @@ TODO:
     - Load multiple TLE files to the same processing session
     - Figure out some way of live showing finder process.
     - Pretty up the plot.
-    - Button to get lat/lon/height from mount if available
+    - Convert LST to "real" time
+    - Allow raw commands to be sent to the telescope.
+    
 """
 
 # pylint: disable=C0103
@@ -103,9 +105,16 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_Process.clicked.connect(self.On_Process_Button)
         
         self.ui.button_Connect.clicked.connect(self.On_Connect_Button)
+        self.ui.button_latlon_auto.clicked.connect(self.On_LatLon_Auto)
+        
+        self.ui.button_tle_track.clicked.connect(self.On_TLE_Track_Button)
+        self.ui.button_goto_altaz.clicked.connect(self.On_Goto_AltAz_Button)
+        self.ui.button_goto_radec.clicked.connect(self.On_Goto_RaDec_Button)
         
         self.ui.table_Passes.doubleClicked.connect(self.On_Pass_Click)
         self.ui.table_Waiting.doubleClicked.connect(self.On_Waiting_Click)
+        self.ui.table_TLEs.doubleClicked.connect(self.On_TLE_Click)
+        
 
     def Init_Plot(self):
         """
@@ -210,6 +219,51 @@ class MyWindow(QtWidgets.QMainWindow):
         # Actually do the processing.
         self.satellites_Thread.start()
 
+    def On_LatLon_Auto(self):
+        """
+        Get the lat/lon from the mount if possible.
+        """
+
+        mount_lat = self.ui.value_telescope_lat.text()
+        mount_lon = self.ui.value_telescope_lon.text()
+        mount_height = self.ui.value_telescope_height.text()
+
+        self.ui.value_Lat.setText(mount_lat)
+        self.ui.value_Lon.setText(mount_lon)
+        self.ui.value_Height.setText(mount_height)
+
+    def On_Goto_AltAz_Button(self):
+        """
+        Instruct the telescope mount to go to a specific alt/az
+        """
+        
+        alt = float(self.ui.value_alt_cmd.text())
+        az = float(self.ui.value_az_cmd.text())
+
+        self.telescope_Thread.Move_AltAz(alt, az)
+
+    def On_Goto_RaDec_Button(self):
+        """
+        Instruct the telescope mount to go to a specific ra/dec in the
+        specified coordinate system (apparent or j2000)
+        """
+        
+        ra = float(self.ui.value_ra_cmd.text())
+        dec = float(self.ui.value_dec_cmd.text())
+        j2000 = self.ui.option_cmd_j2000.isChecked()
+
+        self.telescope_Thread.Move_RaDec(ra, dec, j2000)
+        
+    def On_TLE_Track_Button(self):
+        tle = self.ui.value_tle_cmd.toPlainText()
+        
+        if self.ui.option_tle_cmd_now.isChecked():
+            self.telescope_Thread.Follow_TLE(tle)
+        else:
+            time = self.ui.value_tle_cmd_start.dateTime().toPyDateTime()
+            print(time)
+            self.telescope_Thread.Add_Waiting_TLE(tle, time, time)
+
     def On_TLEs_Signal(self, tle_List):
         """
         Display the TLE list contents in the GUI
@@ -224,7 +278,6 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_TLEs.setItem(i, 0, QtWidgets.QTableWidgetItem(tle.name.rstrip()))
             self.ui.table_TLEs.setItem(i, 1, QtWidgets.QTableWidgetItem(tle[1]))
             self.ui.table_TLEs.setItem(i, 2, QtWidgets.QTableWidgetItem(tle[2]))
-
 
     def On_Passes_Signal(self, pass_Data):
         """
@@ -265,12 +318,39 @@ class MyWindow(QtWidgets.QMainWindow):
         new data.
         """
 
-        self.ui.value_lat.setText(pwi_Status.site.latitude)
-        self.ui.value_lon.setText(pwi_Status.site.longitude)
-        self.ui.value_height.setText(pwi_Status.site.height)
+        self.ui.value_telescope_lat.setText(f"{pwi_Status.site.latitude}")
+        self.ui.value_telescope_lon.setText(f"{pwi_Status.site.longitude}")
+        self.ui.value_telescope_height.setText(f"{pwi_Status.site.height}")
         lst = pwi_Status.site.lst
+        
         self.ui.value_lst.setText(lst)
+        
+        self.ui.value_alt_status.setText(f"{pwi_Status.mount.altitude}")
+        self.ui.value_az_status.setText(f"{pwi_Status.mount.azimuth}")
+        if self.ui.option_j2000_status.isChecked():
+            self.ui.value_ra_status.setText(f"{pwi_Status.mount.ra_apparent}")
+            self.ui.value_dec_status.setText(f"{pwi_Status.mount.dec_apparent}")
+        else:
+            self.ui.value_ra_status.setText(f"{pwi_Status.mount.ra_j2000}")
+            self.ui.value_dec_status.setText(f"{pwi_Status.mount.dec_j2000}")
+        
+        self.ui.value_a0_enabled.setText(f"{pwi_Status.mount.axis0.is_enabled}")
+        self.ui.value_a0_rms.setText(f"{pwi_Status.mount.axis0.rms_error}")
+        self.ui.value_a0_dist.setText(f"{pwi_Status.mount.axis0.dist_to_target}")
+        self.ui.value_a0_servo.setText(f"{pwi_Status.mount.axis0.servo_error}")
+        self.ui.value_a0_position.setText(f"{pwi_Status.mount.axis0.position}")
 
+        self.ui.value_a1_enabled.setText(f"{pwi_Status.mount.axis1.is_enabled}")
+        self.ui.value_a1_rms.setText(f"{pwi_Status.mount.axis1.rms_error}")
+        self.ui.value_a1_dist.setText(f"{pwi_Status.mount.axis1.dist_to_target}")
+        self.ui.value_a1_servo.setText(f"{pwi_Status.mount.axis1.servo_error}")
+        self.ui.value_a1_position.setText(f"{pwi_Status.mount.axis1.position}")
+        
+        self.ui.value_Geometry.setText(f"{pwi_Status.mount.geometry}")
+        slewing = pwi_Status.mount.is_slewing
+        tracking = pwi_Status.mount.is_tracking
+        self.ui.value_MoveStatus.setText(f"Slewing:{slewing}, Tracking:{tracking}")
+        
     def On_Pass_Click(self, rowcol):
         """
         Clicking on a pass in the pass list adds it to a queue, when the pass
@@ -311,7 +391,13 @@ class MyWindow(QtWidgets.QMainWindow):
         # and the internal list element number correspond to each other.
         row = rowcol.row()
         self.telescope_Thread.Remove_Waiting_TLE(row)
+    
+    def On_TLE_Click(self, rowcol):
+        row = rowcol.row()
+        tle = self.satellites_Thread.my_TLE_List[row]
         
+        self.ui.value_tle_cmd.setPlainText(str(tle))
+    
     def On_Waiting_Update(self, waiting_List):
         """
         In order to keep track of the elements in the waiting list, redraw it

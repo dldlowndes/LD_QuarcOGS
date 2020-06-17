@@ -42,7 +42,7 @@ class telescope_Thread(QtCore.QThread):
 
         self.mount.Connect_IP(ip_Address, port)
         self.thread_Active = True
-        self.mount_Connect()
+        self.mount.Connect()
 
     def Disconnect(self):
         """
@@ -93,7 +93,7 @@ class telescope_Thread(QtCore.QThread):
         Remove a TLE from the waiting list (maybe it was added by accident?)
         and stop the follow command from being fired.
         """
-        
+
         # Stop the timer from the selected row
         self.waiting_List[index][3].stop()
         # Remove selected row
@@ -110,16 +110,25 @@ class telescope_Thread(QtCore.QThread):
         """
         self.waiting_List.pop(0)
         self.waiting_Signal.emit(self.waiting_List)
-        
+
         self.Follow_TLE(tle)
 
     def Follow_TLE(self, tle):
         """
         Tell the mount to follow the supplied TLE.
         """
-        
+
         print(f"Trigger to follow {tle}.")
         #self.mount.Follow_TLE(tle)
+
+    def Move_AltAz(self, alt, az):
+        self.mount.Goto_AltAz(alt, az)
+
+    def Move_RaDec(self, ra, dec, j2000):
+        if j2000:
+            self.mount.Goto_RaDec_J2000(ra, dec)
+        else:
+            self.mount.Goto_RaDec_Apparent(ra, dec)
 
     def run(self):
         while self.thread_Active:
