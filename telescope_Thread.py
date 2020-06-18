@@ -33,15 +33,20 @@ class telescope_Thread(QtCore.QThread):
 
         self.waiting_List = []
 
-    def Connect(self, ip_Address, port):
+    def Connect_Server(self, ip_Address, port):
         """
         Connect to the telescope HTTP server and tell the HTTP server to
-        connect to the physical hardware.
-        TODO: And enable axes?
         """
 
         self.mount.Connect_IP(ip_Address, port)
         self.thread_Active = True
+
+    def Connect_Mount(self):
+        """
+        connect to the physical hardware.
+        TODO: And enable axes?
+        """
+
         self.mount.Connect()
 
     def Disconnect(self):
@@ -60,7 +65,7 @@ class telescope_Thread(QtCore.QThread):
         "stop" is just used for displaying the pass stop time to the user.
         """
 
-        # Get the time until the TLE's pass start in ms (which is how the 
+        # Get the time until the TLE's pass start in ms (which is how the
         # QTimer likes it).
         now = datetime.datetime.now(tzlocal.get_localzone())
         delta = start - now
@@ -83,10 +88,10 @@ class telescope_Thread(QtCore.QThread):
             # Emit the list so the GUI can update.
             self.waiting_Signal.emit(self.waiting_List)
         elif (now < stop):
-            print(f"Error? pass already started. tracking remainder of it")
+            print("Error? pass already started. tracking remainder of it")
             self.Follow_TLE(tle)
         else:
-            print(f"Error, pass has already happened.")
+            print("Error, pass has already happened.")
 
     def Remove_Waiting_TLE(self, index):
         """
@@ -119,7 +124,7 @@ class telescope_Thread(QtCore.QThread):
         """
 
         print(f"Trigger to follow {tle}.")
-        #self.mount.Follow_TLE(tle)
+        # self.mount.Follow_TLE(tle)
 
     def Move_AltAz(self, alt, az):
         self.mount.Goto_AltAz(alt, az)
@@ -129,6 +134,24 @@ class telescope_Thread(QtCore.QThread):
             self.mount.Goto_RaDec_J2000(ra, dec)
         else:
             self.mount.Goto_RaDec_Apparent(ra, dec)
+
+    def Mount_Stop(self):
+        self.mount.Stop()
+
+    def Mount_Park(self, here):
+        if here:
+            self.mount.Park_Here()
+        else:
+            self.mount.Park()
+
+    def Mount_Home(self):
+        self.mount.Home()
+
+    def Mount_Tracking(self, on):
+        if on:
+            self.mount.Tracking_On()
+        else:
+            self.mount.Tracking_Off()
 
     def run(self):
         while self.thread_Active:

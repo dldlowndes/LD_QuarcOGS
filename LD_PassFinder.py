@@ -10,15 +10,6 @@ Usage:
     - Pass one/some/no TLEs to Caluclate_Passes(). If none are passed, it
     calculates for ALL the satellites in its internal list (this can be a lot!)
     - Use the alt/az vs time data sets for each TLE to choose which to track
-
-TODO: Let Search_Time_Range accept datetime objects (as well as ISO strings)
-TODO: Filter out passes by azimuth (maybe there's a building in the way?)
-TODO: General QoL improvements
-TODO: GUI?
-TODO: Logging!
-TODO: Figure out if the satellite is in sun (more visible?)
-TODO: Return the most visible satellite *right now*
-TODO: Some sort of scheduler that builds a list of satellites to track sequentially.
 """
 
 import datetime

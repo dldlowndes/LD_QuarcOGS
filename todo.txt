@@ -1,0 +1,17 @@
+- LOGGING!
+- Add option to GUI to get TLEs from the internet
+- Load multiple TLE files at once
+- Filter TLEs based on multiple terms
+- Show progress of sat finder in the GUI
+- Make the plot look nicer
+- Convert LST from the telescope mount to real time
+- Add feature into GUI to send raw commands to the telescope
+- Decide when to enable axes (add GUI element as well?)
+- Error handling (telescope mount and otherwise)
+- Verify telescope commands before sending
+- Let pass finder accept datetime objects as well as string timestamps
+- Add option to filter passes by azimuth
+- Figure out if the satellite is still illuminated by the sun
+- Find the most visible satellite *now* (or within some short time)
+- Verify that PWI_Status parses info from the hardware correctly
+- Assert the TLE checksums are how they should be

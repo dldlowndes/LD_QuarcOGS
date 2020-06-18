@@ -1,21 +1,23 @@
 import datetime
 
+
 class LD_MyTLE:
     """
     Container to make accessing elements of a TLE easier.
     """
-    
+
     def __init__(self, tle):
         """
         Make the TLE. Try to accept a range of different input formats.
         str: a single string of the whole TLE, with \n to denote lines.
         list, tuple: Of length 3, with a TLE line string per element.
         dict: With keys "line0", "line1", "line2". Values are the TLE line strings
-        
+
         If the input is not a dict, it is converted into a dict. This is to
         most seamlessly support the LD_Planewave telescope mount interface 
         which likes dicts.
         """
+        
         if isinstance(tle, str):
             tle = tle.split("\n")
         # falls through to this one too!
@@ -38,7 +40,7 @@ class LD_MyTLE:
         self.classification = line1_Split[1][-1:]
         self.designator = line1_Split[2]
         self.epoch_str = line1_Split[3]
-        #Translate epoch straight into something actually useful!
+        # Translate epoch straight into something actually useful!
         epoch_year = datetime.datetime(2000 + int(self.epoch_str[:2]), 1, 1)
         epoch_days = datetime.timedelta(days=float(self.epoch_str[2:]))
         self.epoch = epoch_year + epoch_days
@@ -50,7 +52,7 @@ class LD_MyTLE:
         self.checksum_1 = line1_Split[8][-1:]
 
         self.line2 = line2_Split[0]
-        #assert line2_Split[1] == self.catalog_Number
+        # assert line2_Split[1] == self.catalog_Number
         self.inclination = line2_Split[2]
         self.raan = line2_Split[3]
         self.eccentricity = line2_Split[4]

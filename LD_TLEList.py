@@ -1,19 +1,20 @@
 import requests
-import warnings
 
 import LD_MyTLE
+
 
 class LD_TLEList:
     """
     Get TLE database from a file (local or internet).
     """
+
     def __init__(self, path=None):
         """
         Get the TLE data and sort it into a nice structure.
         """
         if (path == "") or isinstance(path, type(None)):
             # Get list from the internet later.
-            print(f""""
+            print(""""
                   No TLE list loaded initially; use Load_TLEs_From_URL to get
                   list from a website or use Load_TLEs_From_File to load a
                   local file.
@@ -26,13 +27,13 @@ class LD_TLEList:
     def Load_TLEs_From_File(self, path):
         data = open(path).read()
         flatlist = data.split("\n")
-        
+
         self._Parse_File(flatlist)
-        
+
     def Load_TLEs_From_URL(self, url):
         req = requests.get(url)
         flatlist = req.text.split("\r\n")
-        
+
         self._Parse_File(flatlist)
 
     def _Parse_File(self, flatlist):
@@ -45,7 +46,6 @@ class LD_TLEList:
 
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}
-        
 
     def Search_Keys(self, search_String):
         """
@@ -91,14 +91,15 @@ class LD_TLEList:
         object iterable.
         """
         return list(self.tle_Dict.values())[index]
-    
+
     @property
     def Keys(self):
         return self.tle_Dict.keys()
-    
+
     @property
     def TLEs(self):
         return self.tle_Dict.values()
+
 
 if __name__ == "__main__":
     my_tle_list = LD_TLEList("tle_Files/active.txt")

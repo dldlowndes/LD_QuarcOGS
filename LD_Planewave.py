@@ -4,11 +4,6 @@ import LD_PWI_Status
 
 import LD_MyTLE
 
-# TODO:
-#   - Handle errors gracefully
-#   - Some option to enable/disable single axes (should both axes be default though?)
-#   - Get some documentation about these functions (email sent, awaiting reply)
-#   - Verify TLEs before sending?
 
 class LD_Planewave:
     """
@@ -21,30 +16,37 @@ class LD_Planewave:
             self.Connect(ip_Address, port)
         else:
             print("No IP address supplied (yet). Use Connect_IP(ip, port) later")
-        
+
     def Connect_IP(self, ip_Address="http://127.0.0.1", port="8220"):
         self.base_Url = f"{ip_Address}:{port}"
 
         # Dictionary containing the status message of the device.
         self.status = LD_PWI_Status.LD_PWI_Status()
-    
+
     def _SendMsg(self, command, **kwargs):
         """
         Makes GET requests to the PWI4 server. The commands are to specific
         URLs (such as "127.0.0.1:8220/mount/enable" for commands that need no
         parameters or use the query string "?" to add parameters separated by
         "&") - this is all dealt with by the requests package.
-    
+
         Parameters are passed in as a dictionary to this function and passed
         straight to requests.get().
         """
-    
-        # Make the URL for the command (not including any params)
-        cmd_Url = "/".join([self.base_Url, *command])
-    
+
+        if isinstance(command, (list, tuple)):
+            # Make the URL for the command (not including any params)
+            cmd_Url = "/".join([self.base_Url, *command])
+        elif isinstance(command, str):
+            # If a string was passed, interpret it as a direct command.
+            cmd_Url = f"{self.base_Url}/{command}"
+        else:
+            cmd_Url = ""
+            print("Don't know how to interpret {command} of type {type(command)}")
+
         # Make the GET request including the parameters (if present)
         response = requests.get(cmd_Url, kwargs)
-    
+
         # Interpret response or complain it failed.
         if response.status_code == 200:
             self.status.Update(response)
@@ -52,7 +54,7 @@ class LD_Planewave:
             print(f"Response code {response.status_code}")
             print(f"{response.reason}: {response.content}")
             print(f"Request was {response.url}")
-            
+
         return response
 
     def Connect(self):
@@ -91,18 +93,18 @@ class LD_Planewave:
 
     def Goto_RaDec_Apparent(self, ra_Hours, dec_Degrees):
         response = self._SendMsg(["mount", "goto_ra_dec_apparent"],
-                      ra_hours=ra_Hours,
-                      dec_degs=dec_Degrees)
+                                 ra_hours=ra_Hours,
+                                 dec_degs=dec_Degrees)
 
     def Goto_RaDec_J2000(self, ra_Hours, dec_Degrees):
         response = self._SendMsg(["mount", "goto_ra_dec_j2000"],
-                      ra_hours=ra_Hours,
-                      dec_degs=dec_Degrees)
+                                 ra_hours=ra_Hours,
+                                 dec_degs=dec_Degrees)
 
     def Goto_AltAz(self, alt_Degrees, az_Degrees):
         response = self._SendMsg(["mount", "goto_alt_az"],
-                      alt_degs=alt_Degrees,
-                      az_degs=az_Degrees)
+                                 alt_degs=alt_Degrees,
+                                 az_degs=az_Degrees)
 
     def Mount_Offset(self):
         """
@@ -153,7 +155,7 @@ class LD_Planewave:
             dict: a dict with keys line0, line1, line2 holding strings for each line of TLE
             My_TLE: An instance of my TLE class
         """
-        
+
         if isinstance(tle, str):
             tle = tle.split("\n")
         if isinstance(tle, list):
@@ -167,10 +169,10 @@ class LD_Planewave:
             tle_Payload = tle
         elif isinstance(tle, LD_MyTLE.LD_MyTLE):
             tle_Payload = tle.Dict
-        
+
         response = self._SendMsg(["mount", "follow_tle"],
-                      **tle_Payload
-                      )
+                                 **tle_Payload
+                                 )
         return response
 
 
@@ -178,12 +180,12 @@ if __name__ == "__main__":
     myMount = LD_Planewave("http://127.0.0.1", "8220")
     myMount.Connect()
     print(myMount.status)
-    
+
     myMount.Tracking_On()
-    
+
     print("Request TLE")
     iss_TLE = ["ISS (ZARYA)",
-           "1 25544U 98067A   20140.34419374 -.00000374  00000-0  13653-5 0  9990",
-           "2 25544  51.6433 131.2277 0001338 330.3524 173.1622 15.49372617227549"
-           ]
+               "1 25544U 98067A   20140.34419374 -.00000374  00000-0  13653-5 0  9990",
+               "2 25544  51.6433 131.2277 0001338 330.3524 173.1622 15.49372617227549"
+               ]
     r = myMount.Follow_TLE(iss_TLE)
