@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>720</height>
+    <width>1281</width>
+    <height>740</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -501,7 +501,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox">
+               <widget class="QCheckBox" name="option_ip_local">
                 <property name="text">
                  <string>localhost</string>
                 </property>

@@ -28,6 +28,8 @@ import mainwindow
 import satellites_Thread
 import telescope_Thread
 
+import LD_MyTLE
+
 class MyWindow(QtWidgets.QMainWindow):
     """
     Window for the UI for the OGS program.
@@ -72,6 +74,9 @@ class MyWindow(QtWidgets.QMainWindow):
         # The telescope is *probably* connected to the local machine.
         self.ui.value_ip.setText("http://127.0.0.1")
         self.ui.value_port.setText("8220")
+        
+        self.ui.option_ip_local.setChecked(True)
+        self.On_IP_Local_Click()
 
     def Init_Threads(self):
         """
@@ -114,6 +119,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.table_Passes.doubleClicked.connect(self.On_Pass_Click)
         self.ui.table_Waiting.doubleClicked.connect(self.On_Waiting_Click)
         self.ui.table_TLEs.doubleClicked.connect(self.On_TLE_Click)
+        
+        self.ui.option_ip_local.stateChanged.connect(self.On_IP_Local_Click)
         
 
     def Init_Plot(self):
@@ -255,14 +262,23 @@ class MyWindow(QtWidgets.QMainWindow):
         self.telescope_Thread.Move_RaDec(ra, dec, j2000)
         
     def On_TLE_Track_Button(self):
-        tle = self.ui.value_tle_cmd.toPlainText()
+        tle_Str = self.ui.value_tle_cmd.toPlainText()
+        tle = LD_MyTLE.LD_MyTLE(tle_Str)
         
         if self.ui.option_tle_cmd_now.isChecked():
             self.telescope_Thread.Follow_TLE(tle)
         else:
             time = self.ui.value_tle_cmd_start.dateTime().toPyDateTime()
-            print(time)
-            self.telescope_Thread.Add_Waiting_TLE(tle, time, time)
+            time_local = tzlocal.get_localzone().localize(time)
+            self.telescope_Thread.Add_Waiting_TLE(tle, time_local, time_local)
+
+    def On_IP_Local_Click(self):
+        if self.ui.option_ip_local.isChecked():
+            self.ui.value_ip.setEnabled(False)
+            #self.ui.value_port.setEnabled(False)
+        else:
+            self.ui.value_ip.setEnabled(True)
+            #self.ui.value_port.setEnabled(True)
 
     def On_TLEs_Signal(self, tle_List):
         """
@@ -307,7 +323,11 @@ class MyWindow(QtWidgets.QMainWindow):
         """
         Connect to the telescope HTTP server based on the IP address specified.
         """
-        ip = self.ui.value_ip.text()
+        if self.ui.option_ip_local.isChecked():
+            ip = "http://127.0.0.1"
+        else:
+            ip = self.ui.value_ip.text()
+        
         port = self.ui.value_port.text()
         self.telescope_Thread.Connect(ip, port)
         self.telescope_Thread.start()
@@ -317,7 +337,15 @@ class MyWindow(QtWidgets.QMainWindow):
         The telescope periodically emits its status, update the GUI with the
         new data.
         """
+        
+        #print(pwi_Status)
 
+        if pwi_Status.mount.is_connected:
+            conn_Text = "Connected"
+        else:
+            conn_Text = "Not Connected"
+        self.ui.value_Connected.setText(f"{conn_Text}")
+            
         self.ui.value_telescope_lat.setText(f"{pwi_Status.site.latitude}")
         self.ui.value_telescope_lon.setText(f"{pwi_Status.site.longitude}")
         self.ui.value_telescope_height.setText(f"{pwi_Status.site.height}")

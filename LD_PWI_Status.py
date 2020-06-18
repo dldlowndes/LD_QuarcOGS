@@ -233,7 +233,10 @@ class Mount_Status:
     
     @is_connected.setter
     def is_connected(self, value):
-        self._is_connected = bool(value)
+        if value.lower() == "true":
+            self._is_connected = True
+        else:
+            self._is_connected = False
         
     @property
     def geometry(self):
@@ -313,7 +316,10 @@ class Mount_Status:
     
     @is_slewing.setter
     def is_slewing(self, value):
-        self._is_slewing = bool(value)
+        if value.lower() == "true":
+            self._is_slewing = True
+        else:
+            self._is_slewing = False
                  
     @property
     def is_tracking(self):
@@ -321,7 +327,10 @@ class Mount_Status:
     
     @is_tracking.setter
     def is_tracking(self, value):
-        self._is_tracking = bool(value)
+        if value.lower() == "true":
+            self._is_tracking = True
+        else:
+            self._is_tracking = False
                  
     @property
     def field_angle_here(self):
@@ -390,7 +399,10 @@ class Axis_Status:
     
     @is_enabled.setter
     def is_enabled(self, value):
-        self._is_enabled = bool(value)
+        if value.lower() == "true":
+            self._is_enabled = True
+        else:
+            self._is_enabled = False
         
     @property
     def rms_error(self):
@@ -501,7 +513,10 @@ class Focuser_Status:
     
     @is_connected.setter
     def is_connected(self, value):
-        self._is_connected = bool(value)
+        if value.lower() == "true":
+            self._is_connected = True
+        else:
+            self._is_connected = False
     
     @property
     def is_enabled(self):
@@ -509,7 +524,10 @@ class Focuser_Status:
     
     @is_enabled.setter
     def is_enabled(self, value):
-        self._is_enabled = bool(value)
+        if value.lower() == "true":
+            self._is_enabled = True
+        else:
+            self._is_enabled = False
         
     @property
     def position(self):
@@ -525,7 +543,10 @@ class Focuser_Status:
     
     @is_moving.setter
     def is_moving(self, value):
-        self._is_moving = bool(value)
+        if value.lower() == "true":
+            self._is_moving = True
+        else:
+            self._is_moving = False
 
 class Rotator_Status:
     """
@@ -556,7 +577,10 @@ class Rotator_Status:
     
     @is_connected.setter
     def is_connected(self, value):
-        self._is_connected = bool(value)
+        if value.lower() == "true":
+            self._is_connected = True
+        else:
+            self._is_connected = False
 
     @property
     def is_enabled(self):
@@ -564,7 +588,10 @@ class Rotator_Status:
     
     @is_enabled.setter
     def is_enabled(self, value):
-        self._is_enabled = bool(value)
+        if value.lower() == "true":
+            self._is_enabled = True
+        else:
+            self._is_enabled = False
         
     @property
     def mech_position(self):
@@ -588,7 +615,10 @@ class Rotator_Status:
     
     @is_moving.setter
     def is_moving(self, value):
-        self._is_moving = bool(value)
+        if value.lower() == "true":
+            self._is_moving = True
+        else:
+            self._is_moving = False
 
     @property
     def is_slewing(self):
@@ -596,7 +626,10 @@ class Rotator_Status:
     
     @is_slewing.setter
     def is_slewing(self, value):
-        self._is_slewing = bool(value)
+        if value.lower() == "true":
+            self._is_slewing = True
+        else:
+            self._is_slewing = False
         
 class M3_Status:
     """
@@ -644,7 +677,10 @@ class AutoFocus_Status:
     
     @is_running.setter
     def is_running(self, value):
-        self._is_running = bool(value)
+        if value.lower() == "true":
+            self._is_running = True
+        else:
+            self._is_running = False
 
     @property
     def success(self):
@@ -652,7 +688,10 @@ class AutoFocus_Status:
     
     @success.setter
     def success(self, value):
-        self._success = bool(value)        
+        if value.lower() == "true":
+            self._success = True
+        else:
+            self._success = False       
 
     @property
     def best_position(self):
