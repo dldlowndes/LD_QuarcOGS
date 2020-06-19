@@ -62,3 +62,4 @@ venv.bak/
 
 pass_Data/*
 *.stats
+*.log

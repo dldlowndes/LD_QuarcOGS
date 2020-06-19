@@ -1,8 +1,11 @@
+import logging
+
 from PyQt5 import QtCore
 
 import LD_TLEList
 import LD_PassFinder
 
+log = logging.getLogger(__name__)
 
 class satellites_Thread(QtCore.QThread):
     """
@@ -18,6 +21,7 @@ class satellites_Thread(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
 
+        log.debug("Init thread defaults")
         # Flags.
         # Practically the thread will probably remain active whilever
         # the program is running.
@@ -36,19 +40,19 @@ class satellites_Thread(QtCore.QThread):
         self.finder = LD_PassFinder.LD_PassFinder()
 
     def Load_List(self, filename):
+        log.debug(f"Load TLE list {filename}")
         self.my_TLE_List = LD_TLEList.LD_TLEList(filename)
         self.finder.Load_TLE_Data(self.my_TLE_List)
         self.tles = self.finder.Search_TLE_Data("")
         self.tles_Signal.emit(self.tles)
 
     def Search_List(self, search):
+        log.debug(f"Search TLE list for {search}.")
         self.tles = self.finder.Search_TLE_Data(search)
         self.tles_Signal.emit(self.tles)
 
     def run(self):
-        print(f"{self.lat}, {self.lon}, {self.height}")
-        print(f"{self.t_start}, {self.t_stop}, {self.t_step}")
-        print(f"{self.degrees}")
+        log.debug("Start pass finder thread")
         self.finder.Set_Position(self.lat, self.lon, self.height)
         self.finder.Search_Time_Range(self.t_start, self.t_stop, self.t_step)
 
@@ -58,11 +62,6 @@ class satellites_Thread(QtCore.QThread):
         self.passes_Signal.emit(self.pass_Data)
 
     def stop(self):
+        log.debug("Stop pass finder thread")
         self.thread_Active = False
         self.wait()
-
-    def On_Load_TLEs(self):
-        pass
-
-    def On_Calculate_Passes(self):
-        pass

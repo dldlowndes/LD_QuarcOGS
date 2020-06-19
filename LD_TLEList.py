@@ -1,7 +1,10 @@
+import logging
 import requests
+import sys
 
 import LD_MyTLE
 
+log = logging.getLogger(__name__)
 
 class LD_TLEList:
     """
@@ -12,9 +15,10 @@ class LD_TLEList:
         """
         Get the TLE data and sort it into a nice structure.
         """
+
         if (path == "") or isinstance(path, type(None)):
             # Get list from the internet later.
-            print(""""
+            log.warn(""""
                   No TLE list loaded initially; use Load_TLEs_From_URL to get
                   list from a website or use Load_TLEs_From_File to load a
                   local file.
@@ -25,12 +29,14 @@ class LD_TLEList:
             self.Load_TLEs_From_File(path)
 
     def Load_TLEs_From_File(self, path):
+        log.debug(f"Load TLEs from file: {path}")
         data = open(path).read()
         flatlist = data.split("\n")
 
         self._Parse_File(flatlist)
 
     def Load_TLEs_From_URL(self, url):
+        log.debug(f"Load TLEs from URL: {url}")
         req = requests.get(url)
         flatlist = req.text.split("\r\n")
 
@@ -44,6 +50,8 @@ class LD_TLEList:
         # Put the data into a dict
         self.tle_Dict = {key:LD_MyTLE.LD_MyTLE(data) for (key, data) in zip(tle_Names, tle_List)}
 
+        log.debug(f"Loaded {self.__len__()} TLEs")
+
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}
 
@@ -53,25 +61,20 @@ class LD_TLEList:
         """
 
         search_Keys = list(filter(lambda x: search_String.lower() in x.lower(), self.tle_Dict.keys()))
+        log.debug(f"Searched TLE list for {search_String}, found {len(search_Keys)} matching TLE names")
 
         return search_Keys
 
     def Search_And_Return(self, search_String):
         """
-        Search the satellites names for a substring, if there is only one
-        satellite containing that substring, return it. Otherwise return a
+        Search the satellites names for a substring, return a
         list of all the matching satellites (eg searching "starlink" returns
         a list of about 400 My_TLE objects)
         """
+
         search_Keys = self.Search_Keys(search_String)
 
-        # if isinstance(search_Keys, str):
-        #     return self.Get_TLE(search_Keys)
-        # else:
         return [self.Get_TLE(key) for key in search_Keys]
-
-    def Filter_List(self, search_String):
-        pass
 
     def Get_TLE_String(self, key):
         """
@@ -92,6 +95,9 @@ class LD_TLEList:
         """
         return list(self.tle_Dict.values())[index]
 
+    def __len__(self):
+        return len(self.tle_Dict)
+
     @property
     def Keys(self):
         return self.tle_Dict.keys()
@@ -102,6 +108,8 @@ class LD_TLEList:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
     my_tle_list = LD_TLEList("tle_Files/active.txt")
 
     sat_key = my_tle_list.Search_Keys("resurs-dk")

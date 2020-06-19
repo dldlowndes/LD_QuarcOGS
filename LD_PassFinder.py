@@ -13,7 +13,8 @@ Usage:
 """
 
 import datetime
-import warnings
+import logging
+import sys
 
 import astropy
 import astropy.coordinates
@@ -30,16 +31,18 @@ import tzlocal
 import LD_MyTLE
 import LD_TLEList
 
+mpl_logger = logging.getLogger("matplotlib")
+mpl_logger.setLevel(logging.WARNING)
+log = logging.getLogger(__name__)
 
 class LD_PassFinder:
     """
     Calculates passes of satelites.
     """
     def __init__(self):
+        log.debug("Set passfinder defaults")
         self.here = None
-
         self.tle_List = None
-
 
     def Set_Position(self, lat, long, height):
         """
@@ -47,6 +50,7 @@ class LD_PassFinder:
         position
         """
 
+        log.info(f"Site conditions set to lat={lat}, long={long}, height={height}")
         self.here = astropy.coordinates.EarthLocation(lat=lat,
                                                       lon=long,
                                                       height=height * astropy.units.m)
@@ -64,9 +68,12 @@ class LD_PassFinder:
         """
 
         # Interpret the time stamp input and convert into UTC astropy Time objects
+        # _Timestamp_Convert() deals with local time zones here
         self.t_start = self._Timestamp_Convert(t_start)
         self.t_stop = self._Timestamp_Convert(t_stop)
         self.t_step = datetime.timedelta(minutes=t_step)
+
+        log.info(f"Set time range start={self.t_start} UTC, stop={self.t_stop} UTC, step={self.t_step}")
 
         # Make all the time stamps that we want data for.
         # I'm sure there's a more elegant way of doing this but it works.
@@ -121,6 +128,7 @@ class LD_PassFinder:
         Celestrak.
         Or provide a LD_TLEList object directly.
         """
+        log.debug(f"Loading TLE list, list supplied of type {type(tle_List)}")
 
         if isinstance(tle_List, str):
             self.tle_List = LD_TLEList.LD_TLEList(tle_List)
@@ -131,7 +139,9 @@ class LD_PassFinder:
             self.tle_List = LD_TLEList.LD_TLEList()
             self.tle_List.Load_TLEs_From_URL(url)
         else:
-            warnings.warn("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
+            log.warn("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
+
+        log.info(f"{len(self.tle_List)} TLEs in the list")
 
         return self.tle_List
 
@@ -141,6 +151,8 @@ class LD_PassFinder:
         the TLE list loaded by Load_TLE_Data. Returns a list if there is more
         than one.
         """
+
+        log.info(f"Search TLE list for {search_String}")
         result = self.tle_List.Search_And_Return(search_String)
         return result
 
@@ -161,6 +173,8 @@ class LD_PassFinder:
         else:
             sats = list(self.tle_List)
 
+        log.info(f"Calculating passes for {len(sats)} TLEs")
+
         # Get the cartesian coordinates (and speeds) of each satellite at each
         # point in the time series defined by Set_Time_Range().
         # Then convert to ITRS (which is apparently more standard than TEME)
@@ -172,17 +186,17 @@ class LD_PassFinder:
         # fast enough just utilizing the fact that it can return data for
         # multiple time stamps at once.
         for tle in sats:
-            print(tle.name)
+            log.info(f"Calculating pass data for {tle.name}")
             sat = sgp4.api.Satrec.twoline2rv(tle[1], tle[2])
             e, p, v = sat.sgp4_array(self.jd_Range, np.zeros_like(self.jd_Range))
             if isinstance(e, int):
                 if e != 0:
-                    warnings.warn(f"Error with {tle.name}. Skipping")
+                    log.warn(f"Error with {tle.name}. Skipping")
                     self.errors.append([tle.name, e])
                     continue
             elif isinstance(e, np.ndarray):
                 if sum(e) != 0:
-                    warnings.warn(f"Error with {tle.name}. Skipping")
+                    log.warn(f"Error with {tle.name}. Skipping")
                     self.errors.append([tle.name, e])
                     continue
 
@@ -208,8 +222,9 @@ class LD_PassFinder:
             self.altaz_Data.append([tle, data])
 
         if len(self.errors) > 0:
-            print(f"Some errors, see {self.errors}")
-
+            log.warn(f"Some errors, see {self.errors}")
+            
+        log.info(f"Finished. {len(self.altaz_Data)} calculated with {len(self.errors)} errors")
         return self.altaz_Data
 
     def Filter_Passes(self, alt_Filter):
@@ -217,6 +232,8 @@ class LD_PassFinder:
         Filter out all of the data from the passes where the satellite peaks
         below "alt_Filter" degrees altitude.
         """
+
+        log.info(f"Filtering passes with peaks below {alt_Filter} degrees alt")
 
         # Container for the pass data, each line will comprise the satellite
         # [name, [peak time, peak alt, az@peak], pass data] where pass data is
@@ -269,6 +286,7 @@ class LD_PassFinder:
         # Sort the passes into chronological order (by peak time), this makes
         # display and plotting easier and prettier.
         self.pass_Data.sort(key=lambda x: x[1][0])
+        log.info(f"{len(self.pass_Data)} passes satisfy alt filter")
         return self.pass_Data
 
     def Get_Pass_List(self):
@@ -331,6 +349,9 @@ class LD_PassFinder:
         satellites this will look like technicolour vomit at best and at worst
         just crash.
         """
+
+        log.debug("Plot all passes")        
+        
         fig, my_ax = plt.subplots()
         my_ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%H:%M:%S"))
         for sat, data in self.altaz_Data:
@@ -342,6 +363,8 @@ class LD_PassFinder:
         """
         Plot all passes identified by Filter_Passes() on the same axis.
         """
+
+        log.debug("Plot passes above threshold alt")
 
         # Make an axis that can be repeatedly plotted onto
         fig, my_ax = plt.subplots()
@@ -380,6 +403,8 @@ class LD_PassFinder:
         fig.show()
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
     finder = LD_PassFinder()
     # Set the location of the OGS
     finder.Set_Position(51.456671, -2.601768, 71)

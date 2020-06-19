@@ -17,7 +17,7 @@ class LD_MyTLE:
         most seamlessly support the LD_Planewave telescope mount interface 
         which likes dicts.
         """
-        
+
         if isinstance(tle, str):
             tle = tle.split("\n")
         # falls through to this one too!

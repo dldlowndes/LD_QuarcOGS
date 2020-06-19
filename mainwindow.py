@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1281, 740)
+        MainWindow.resize(1281, 767)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_9 = QtWidgets.QGridLayout(self.centralwidget)
@@ -403,6 +403,7 @@ class Ui_MainWindow(object):
         self.gridLayout_32.setObjectName("gridLayout_32")
         self.value_tle_cmd_start = QtWidgets.QDateTimeEdit(self.groupBox_4)
         self.value_tle_cmd_start.setEnabled(False)
+        self.value_tle_cmd_start.setMinimumSize(QtCore.QSize(130, 0))
         self.value_tle_cmd_start.setObjectName("value_tle_cmd_start")
         self.gridLayout_32.addWidget(self.value_tle_cmd_start, 0, 2, 1, 1)
         self.option_tle_cmd_now = QtWidgets.QCheckBox(self.groupBox_4)
@@ -636,6 +637,7 @@ class Ui_MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.box_Time)
         self.gridLayout.setObjectName("gridLayout")
         self.date_Start = QtWidgets.QDateTimeEdit(self.box_Time)
+        self.date_Start.setMinimumSize(QtCore.QSize(130, 0))
         self.date_Start.setObjectName("date_Start")
         self.gridLayout.addWidget(self.date_Start, 0, 1, 1, 1)
         self.label_StartTime = QtWidgets.QLabel(self.box_Time)
@@ -741,7 +743,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.tabs_Calculator.setCurrentIndex(0)
+        self.tabs_Calculator.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -795,10 +797,12 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle(_translate("MainWindow", "TLE tracking"))
         self.button_tle_track.setText(_translate("MainWindow", "Track TLE"))
         self.label_tle_cmd.setText(_translate("MainWindow", "TLE string"))
+        self.value_tle_cmd_start.setDisplayFormat(_translate("MainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.option_tle_cmd_now.setText(_translate("MainWindow", "now"))
         self.label_tle_start.setText(_translate("MainWindow", "When?"))
         self.label_tle_stop.setText(_translate("MainWindow", "Until?"))
         self.option_tle_cmd_forever.setText(_translate("MainWindow", "forever"))
+        self.value_tle_cmd_stop.setDisplayFormat(_translate("MainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.button_cmd_home.setText(_translate("MainWindow", "Home"))
         self.button_cmd_stop.setText(_translate("MainWindow", "Stop"))
         self.button_cmd_park.setText(_translate("MainWindow", "Park"))
@@ -834,7 +838,9 @@ class Ui_MainWindow(object):
         self.label_Lon.setText(_translate("MainWindow", "Lon"))
         self.button_latlon_auto.setText(_translate("MainWindow", "Read from mount"))
         self.box_Time.setTitle(_translate("MainWindow", "Search parameters"))
+        self.date_Start.setDisplayFormat(_translate("MainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.label_StartTime.setText(_translate("MainWindow", "Start Time"))
+        self.date_Stop.setDisplayFormat(_translate("MainWindow", "dd/MM/yyyy HH:mm:ss"))
         self.label_StopTime.setText(_translate("MainWindow", "Stop Time"))
         self.label_Resolution.setText(_translate("MainWindow", "Resolution (mins)"))
         self.box_Process.setTitle(_translate("MainWindow", "Processing"))

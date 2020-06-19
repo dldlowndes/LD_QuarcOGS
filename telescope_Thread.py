@@ -1,6 +1,8 @@
 import datetime
 import functools
+import logging
 import time
+import sys
 
 import tzlocal
 
@@ -9,6 +11,7 @@ from PyQt5 import QtCore
 import LD_Planewave
 import LD_PWI_Status
 
+log = logging.getLogger(__name__)
 
 class telescope_Thread(QtCore.QThread):
     """
@@ -23,10 +26,9 @@ class telescope_Thread(QtCore.QThread):
 
     def __init__(self):
         QtCore.QThread.__init__(self)
+        
+        log.debug("Init thread defaults")
 
-        # Flags.
-        # Practically the thread will probably remain active whilever
-        # the program is running.
         self.thread_Active = False
 
         self.mount = LD_Planewave.LD_Planewave()
@@ -38,6 +40,7 @@ class telescope_Thread(QtCore.QThread):
         Connect to the telescope HTTP server and tell the HTTP server to
         """
 
+        log.debug(f"Connect to PWI4 HTTP server at {ip_Address}:{port}")
         self.mount.Connect_IP(ip_Address, port)
         self.thread_Active = True
 
@@ -47,6 +50,7 @@ class telescope_Thread(QtCore.QThread):
         TODO: And enable axes?
         """
 
+        log.debug("Connect PWI4 to telescope mount")
         self.mount.Connect()
 
     def Disconnect(self):
@@ -55,7 +59,7 @@ class telescope_Thread(QtCore.QThread):
         TODO: And disable axes?
         """
 
-        self.thread_Active = False
+        log.debug("Disconnect PWI4 from telescope mount")
         self.mount.Disconnect()
 
     def Add_Waiting_TLE(self, tle, start, stop):
@@ -64,6 +68,8 @@ class telescope_Thread(QtCore.QThread):
         the TLE tracking function at (roughly) "start".
         "stop" is just used for displaying the pass stop time to the user.
         """
+
+        log.info(f"Add {tle.name.rstrip()} to waiting list. Trigger at {start}")
 
         # Get the time until the TLE's pass start in ms (which is how the
         # QTimer likes it).
@@ -77,7 +83,7 @@ class telescope_Thread(QtCore.QThread):
             timer = QtCore.QTimer(self)
             timer.timeout.connect(functools.partial(self.Triggered_Follow_TLE, tle))
             timer.setSingleShot(True)
-            print(f"start {start} added at {now}, which is {delta_ms} away")
+            log.debug(f"start {start} added at {now}, which is {delta_ms} away")
             timer.start(delta_ms)
 
             # Add the info to a list to keep track of all the timers.
@@ -88,16 +94,18 @@ class telescope_Thread(QtCore.QThread):
             # Emit the list so the GUI can update.
             self.waiting_Signal.emit(self.waiting_List)
         elif (now < stop):
-            print("Error? pass already started. tracking remainder of it")
+            log.warn("Error? pass already started. tracking remainder of it")
             self.Follow_TLE(tle)
         else:
-            print("Error, pass has already happened.")
+            log.warn("Error, pass has already happened.")
 
     def Remove_Waiting_TLE(self, index):
         """
         Remove a TLE from the waiting list (maybe it was added by accident?)
         and stop the follow command from being fired.
         """
+
+        log.info(f"Remove element {index} from the TLE waiting list. Was {self.waiting_List[index]}")
 
         # Stop the timer from the selected row
         self.waiting_List[index][3].stop()
@@ -109,10 +117,14 @@ class telescope_Thread(QtCore.QThread):
 
     def Triggered_Follow_TLE(self, tle):
         """
-        Does this work? If the follow tle was triggered by a QTimer, it must be
+        If the follow tle was triggered by a QTimer, it must be
         the first one in the waiting list? If so we can remove it, update the
         GUI and trigger the actual follow command
         """
+
+        log.info(f"TLE track trigger received, follow {tle.name}")
+        log.info(f"Remove TLE from list {self.waiting_List[0][0].name}")
+
         self.waiting_List.pop(0)
         self.waiting_Signal.emit(self.waiting_List)
 
@@ -123,42 +135,51 @@ class telescope_Thread(QtCore.QThread):
         Tell the mount to follow the supplied TLE.
         """
 
-        print(f"Trigger to follow {tle}.")
-        # self.mount.Follow_TLE(tle)
+        log.debug(f"Follow\n{tle}")
+        self.mount.Follow_TLE(tle)
 
     def Move_AltAz(self, alt, az):
+        log.debug(f"Go to alt/az: {alt}, {az}")
         self.mount.Goto_AltAz(alt, az)
 
     def Move_RaDec(self, ra, dec, j2000):
+        log.debug(f"Go to ra/dec {ra}, {dec}. J2000?{j2000}")
         if j2000:
             self.mount.Goto_RaDec_J2000(ra, dec)
         else:
             self.mount.Goto_RaDec_Apparent(ra, dec)
 
     def Mount_Stop(self):
+        log.debug("Stop mount")
         self.mount.Stop()
 
     def Mount_Park(self, here):
+        log.debug("Park mount. Here?{here}")
         if here:
             self.mount.Park_Here()
         else:
             self.mount.Park()
 
     def Mount_Home(self):
+        log.debug("Home mount")
         self.mount.Home()
 
     def Mount_Tracking(self, on):
         if on:
+            log.debug("Mount tracking on")
             self.mount.Tracking_On()
         else:
+            log.debug("Mount tracking off")
             self.mount.Tracking_Off()
 
     def run(self):
+        log.debug("Start mount status reports")
         while self.thread_Active:
             status = self.mount.Status()
             self.status_Signal.emit(status)
             time.sleep(1)
 
     def stop(self):
+        log.debug("Stop mount status reports")
         self.thread_Active = False
         self.wait()

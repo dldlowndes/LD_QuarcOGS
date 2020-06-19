@@ -6,6 +6,7 @@ Quarc OGS GUI
 # pylint: disable=R0902
 
 import datetime
+import logging
 import sys
 
 from PyQt5 import QtWidgets, QtCore
@@ -21,6 +22,17 @@ import telescope_Thread
 
 import LD_MyTLE
 
+log = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+fmt = formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh = logging.FileHandler("ogs.log")
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(fmt)
+
+for log_name in ["__main__", "LD_MyTLE", "LD_PassFinder", "LD_Planewave", "LD_PWI_Status", "LD_TLEList", "satellites_Thread", "telescope_Thread"]:
+    lgr = logging.getLogger(log_name)
+    lgr.setLevel(logging.DEBUG)
+    lgr.addHandler(fh)
 
 class MyWindow(QtWidgets.QMainWindow):
     """
@@ -33,6 +45,8 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
         super(MyWindow, self).__init__()
+
+        log.debug("set up GUI")
         self.ui = mainwindow.Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -42,11 +56,18 @@ class MyWindow(QtWidgets.QMainWindow):
         self.Init_Connections()
         self.Init_Plot()
 
+    def closeEvent(self, event):
+        log.info("Program closed intentionally")
+        for handler in log.handlers:
+            handler.close()
+            log.removeFilter(handler)
+
     def Init_Defaults(self):
         """
         Set some sensible defaults to populate the GUI. Help reduce the
         amount of typing.
         """
+        log.debug("Init default values")
 
         # The TLE file name (Celestrak's visual list seems good enough)
         self.ui.value_Filename.setText("tle_Files/visual.txt")
@@ -77,6 +98,7 @@ class MyWindow(QtWidgets.QMainWindow):
         Threads to do long lasting work that would hang the GUI.
         Make threads and signal/slot connections in here.
         """
+        log.debug("Init threads")
 
         self.satellites_Thread = satellites_Thread.satellites_Thread()
         # For when the satellites thread has loaded some TLEs for passing to
@@ -97,6 +119,7 @@ class MyWindow(QtWidgets.QMainWindow):
         Connect GUI elements to functions. (Connections to signals from other
         threads is made in self.Init_Threads)
         """
+        log.debug("Connect signal/slots")
 
         # Satellite tracker/TLE handler buttons
         self.ui.button_LoadFile.clicked.connect(self.On_Load_Button)
@@ -129,6 +152,7 @@ class MyWindow(QtWidgets.QMainWindow):
         Make the canvas and set some things that can be set at init time
         (which turns out to be not a lot!)
         """
+        log.debug("Init plot")
 
         self.canvas = FigureCanvas(Figure(figsize=(5, 3)))
         self.ui.layout_Graph.addWidget(NavigationToolbar(self.canvas, self))
@@ -154,6 +178,7 @@ class MyWindow(QtWidgets.QMainWindow):
         """
         Connect to the telescope HTTP server based on the IP address specified.
         """
+
         if self.ui.option_ip_local.isChecked():
             ip = "http://127.0.0.1"
         else:
@@ -219,6 +244,11 @@ class MyWindow(QtWidgets.QMainWindow):
         self.satellites_Thread.Load_List(self.ui.value_Filename.text())
 
     def On_Park_Button(self):
+        """
+        Park the mount, there are two options to park, one is "park here".
+        Read the checkbox to see which option to use.
+        """
+
         here = self.ui.option_park_here.isChecked()
         self.telescope_Thread.Mount_Park(here)
 
@@ -305,7 +335,7 @@ class MyWindow(QtWidgets.QMainWindow):
         """
 
         row = rowcol.row()
-        tle = self.satellites_Thread.my_TLE_List[row]
+        tle = self.satellites_Thread.tles[row]
 
         self.ui.value_tle_cmd.setPlainText(str(tle))
 
@@ -368,6 +398,11 @@ class MyWindow(QtWidgets.QMainWindow):
         """
         Fill the table in the passes tab (and the graph tab?)
         """
+
+        log.debug(f"Passes signal (and data) received. {len(pass_Data)} passes in the list.")
+
+        self.satellites_Thread.stop()
+
         # No need to clear passes since the list is cleared when the processing
         # starts.
 
@@ -438,6 +473,8 @@ class MyWindow(QtWidgets.QMainWindow):
         Display the TLE list contents in the GUI
         """
 
+        log.debug(f"TLEs loaded signal (and data) received. {len(tle_List)} TLEs in the list.")
+
         # Clear table (since the TLE list is cleared anyway)
         self.ui.table_TLEs.setRowCount(0)
 
@@ -456,6 +493,8 @@ class MyWindow(QtWidgets.QMainWindow):
         hard.
         """
 
+        log.debug(f"Waiting list signal received. {len(waiting_List)} TLEs in the list.")
+
         self.ui.table_Waiting.setRowCount(0)
         for i, row in enumerate(waiting_List):
             name = row[0].name
@@ -471,6 +510,8 @@ class MyWindow(QtWidgets.QMainWindow):
         Plot all the passes on a graph window. alt against time for each sat
         that fulfilled the criteria of Filter_Passes in the satellites_Thread.
         """
+
+        log.debug(f"Plot update signal received. {len(pass_Data)} passes in the list.")
 
         self.axes.xaxis_date(self.satellites_Thread.finder.my_tz)
         # fmt = matplotlib.dates.DateFormatter("%Y/%m/%d %H:%M")
@@ -507,6 +548,11 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.canvas.draw()
 
+log.info("""
+    ########################################################################
+    # Starting Quarc OGS software. Satellite tracker and telescope control #
+    ########################################################################
+    """)
 
 app = QtWidgets.QApplication([])
 

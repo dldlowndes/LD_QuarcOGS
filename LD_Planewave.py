@@ -1,9 +1,14 @@
+import logging
 import requests
+import sys
 
 import LD_PWI_Status
 
 import LD_MyTLE
 
+log = logging.getLogger(__name__)
+url_Log = logging.getLogger("urllib3")
+url_Log.setLevel(logging.WARNING)
 
 class LD_Planewave:
     """
@@ -12,15 +17,17 @@ class LD_Planewave:
     """
 
     def __init__(self, ip_Address="", port=""):
+
         if ip_Address != "":
+            log.debug(f"Connecting to {ip_Address}:{port}")
             self.Connect(ip_Address, port)
         else:
-            print("No IP address supplied (yet). Use Connect_IP(ip, port) later")
+            log.warn("No IP address supplied (yet). Use Connect_IP(ip, port) later")
 
     def Connect_IP(self, ip_Address="http://127.0.0.1", port="8220"):
         self.base_Url = f"{ip_Address}:{port}"
 
-        # Dictionary containing the status message of the device.
+        # Container for the status messages of the device.
         self.status = LD_PWI_Status.LD_PWI_Status()
 
     def _SendMsg(self, command, **kwargs):
@@ -40,9 +47,10 @@ class LD_Planewave:
         elif isinstance(command, str):
             # If a string was passed, interpret it as a direct command.
             cmd_Url = f"{self.base_Url}/{command}"
+            log.debug("Direct command {cmd_url}")
         else:
             cmd_Url = ""
-            print("Don't know how to interpret {command} of type {type(command)}")
+            log.warn("Don't know how to interpret {command} of type {type(command)}")
 
         # Make the GET request including the parameters (if present)
         response = requests.get(cmd_Url, kwargs)
@@ -51,16 +59,18 @@ class LD_Planewave:
         if response.status_code == 200:
             self.status.Update(response)
         else:
-            print(f"Response code {response.status_code}")
-            print(f"{response.reason}: {response.content}")
-            print(f"Request was {response.url}")
+            log.warn(f"Response code {response.status_code}")
+            log.warn(f"{response.reason}: {response.content}")
+            log.warn(f"Request was {response.url}")
 
         return response
 
     def Connect(self):
+        log.debug("Connect to telescope hardware")
         response = self._SendMsg(["mount", "connect"])
 
     def Disconnect(self):
+        log.debug("Disconnect from telescope hardware")
         response = self._SendMsg(["mount", "disconnect"])
 
     def Enable(self):
@@ -68,6 +78,7 @@ class LD_Planewave:
         Enable both axes at once.
         """
         for axis_Number in [0, 1]:
+            log.debug(f"Enable axis {axis_Number}")
             self._SendMsg(["mount", "enable"], axis=axis_Number)
 
     def Disable(self):
@@ -75,6 +86,7 @@ class LD_Planewave:
         Disable both axes at once.
         """
         for axis_Number in [0, 1]:
+            log.debug(f"Disable axis {axis_Number}")
             response = self._SendMsg(["mount", "disable"], axis=axis_Number)
 
     def Status(self):
@@ -86,22 +98,27 @@ class LD_Planewave:
         return self.status
 
     def Home(self):
+        log.debug("Home mount")
         response = self._SendMsg(["mount", "find_home"])
 
     def Stop(self):
+        log.debug("Stop mount")
         response = self._SendMsg(["mount", "stop"])
 
     def Goto_RaDec_Apparent(self, ra_Hours, dec_Degrees):
+        log.debug(f"Go do ra/dec (apparent) {ra_Hours}h, {dec_Degrees}deg")
         response = self._SendMsg(["mount", "goto_ra_dec_apparent"],
                                  ra_hours=ra_Hours,
                                  dec_degs=dec_Degrees)
 
     def Goto_RaDec_J2000(self, ra_Hours, dec_Degrees):
+        log.debug(f"Go do ra/dec (J2000) {ra_Hours}h, {dec_Degrees}deg")
         response = self._SendMsg(["mount", "goto_ra_dec_j2000"],
                                  ra_hours=ra_Hours,
                                  dec_degs=dec_Degrees)
 
     def Goto_AltAz(self, alt_Degrees, az_Degrees):
+        log.debug(f"Go do alt/az {ra_Hours}deg alt, {dec_Degrees}deg az")
         response = self._SendMsg(["mount", "goto_alt_az"],
                                  alt_degs=alt_Degrees,
                                  az_degs=az_Degrees)
@@ -136,15 +153,19 @@ class LD_Planewave:
         raise NotImplementedError
 
     def Park(self):
+        log.debug("Park mount")
         response = self._SendMsg(["mount", "park"])
 
     def Park_Here(self):
+        log.debug("Park mount here")
         response = self._SendMsg(["mount", "set_park_here"])
 
     def Tracking_On(self):
+        log.debug("Mount track on")
         response = self._SendMsg(["mount", "tracking_on"])
 
     def Tracking_Off(self):
+        log.debug("Mount track off")
         response = self._SendMsg(["mount", "tracking_off"])
 
     def Follow_TLE(self, tle):
@@ -169,6 +190,8 @@ class LD_Planewave:
             tle_Payload = tle
         elif isinstance(tle, LD_MyTLE.LD_MyTLE):
             tle_Payload = tle.Dict
+            
+        log.debug(f"Follow TLE named {tle_Payload['line0']}")
 
         response = self._SendMsg(["mount", "follow_tle"],
                                  **tle_Payload
@@ -177,6 +200,7 @@ class LD_Planewave:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     myMount = LD_Planewave("http://127.0.0.1", "8220")
     myMount.Connect()
     print(myMount.status)

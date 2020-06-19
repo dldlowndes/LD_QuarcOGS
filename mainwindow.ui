@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1281</width>
-    <height>740</height>
+    <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -775,6 +775,15 @@
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>130</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="displayFormat">
+                    <string>dd/MM/yyyy HH:mm:ss</string>
+                   </property>
                   </widget>
                  </item>
                  <item row="0" column="1">
@@ -818,6 +827,9 @@
                   <widget class="QDateTimeEdit" name="value_tle_cmd_stop">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="displayFormat">
+                    <string>dd/MM/yyyy HH:mm:ss</string>
                    </property>
                   </widget>
                  </item>
@@ -1043,7 +1055,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabs_Calculator">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_TLEs">
              <attribute name="title">
@@ -1229,7 +1241,17 @@
                   </property>
                   <layout class="QGridLayout" name="gridLayout">
                    <item row="0" column="1">
-                    <widget class="QDateTimeEdit" name="date_Start"/>
+                    <widget class="QDateTimeEdit" name="date_Start">
+                     <property name="minimumSize">
+                      <size>
+                       <width>130</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="displayFormat">
+                      <string>dd/MM/yyyy HH:mm:ss</string>
+                     </property>
+                    </widget>
                    </item>
                    <item row="0" column="0">
                     <widget class="QLabel" name="label_StartTime">
@@ -1239,7 +1261,11 @@
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QDateTimeEdit" name="date_Stop"/>
+                    <widget class="QDateTimeEdit" name="date_Stop">
+                     <property name="displayFormat">
+                      <string>dd/MM/yyyy HH:mm:ss</string>
+                     </property>
+                    </widget>
                    </item>
                    <item row="1" column="0">
                     <widget class="QLabel" name="label_StopTime">
