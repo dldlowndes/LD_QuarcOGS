@@ -118,7 +118,7 @@ class LD_Planewave:
                                  dec_degs=dec_Degrees)
 
     def Goto_AltAz(self, alt_Degrees, az_Degrees):
-        log.debug(f"Go do alt/az {ra_Hours}deg alt, {dec_Degrees}deg az")
+        log.debug(f"Go do alt/az {alt_Degrees}deg alt, {az_Degrees}deg az")
         response = self._SendMsg(["mount", "goto_alt_az"],
                                  alt_degs=alt_Degrees,
                                  az_degs=az_Degrees)
