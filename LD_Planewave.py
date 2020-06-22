@@ -68,22 +68,28 @@ class LD_Planewave:
     def Connect(self):
         log.debug("Connect to telescope hardware")
         response = self._SendMsg(["mount", "connect"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Disconnect(self):
         log.debug("Disconnect from telescope hardware")
         response = self._SendMsg(["mount", "disconnect"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Enable(self, axis):
         """
         Enable chosen axis
         """
-        self._SendMsg(["mount", "enable"], axis=axis)
+        return self._SendMsg(["mount", "enable"], axis=axis)
 
     def Disable(self, axis):
         """
         Disable chosen axis
         """
         response = self._SendMsg(["mount", "disable"], axis=axis)
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Status(self):
         """
@@ -96,28 +102,38 @@ class LD_Planewave:
     def Home(self):
         log.debug("Home mount")
         response = self._SendMsg(["mount", "find_home"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Stop(self):
         log.debug("Stop mount")
         response = self._SendMsg(["mount", "stop"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Goto_RaDec_Apparent(self, ra_Hours, dec_Degrees):
         log.debug(f"Go do ra/dec (apparent) {ra_Hours}h, {dec_Degrees}deg")
         response = self._SendMsg(["mount", "goto_ra_dec_apparent"],
                                  ra_hours=ra_Hours,
                                  dec_degs=dec_Degrees)
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Goto_RaDec_J2000(self, ra_Hours, dec_Degrees):
         log.debug(f"Go do ra/dec (J2000) {ra_Hours}h, {dec_Degrees}deg")
         response = self._SendMsg(["mount", "goto_ra_dec_j2000"],
                                  ra_hours=ra_Hours,
                                  dec_degs=dec_Degrees)
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Goto_AltAz(self, alt_Degrees, az_Degrees):
         log.debug(f"Go do alt/az {alt_Degrees}deg alt, {az_Degrees}deg az")
         response = self._SendMsg(["mount", "goto_alt_az"],
                                  alt_degs=alt_Degrees,
                                  az_degs=az_Degrees)
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Mount_Offset(self):
         """
@@ -151,18 +167,26 @@ class LD_Planewave:
     def Park(self):
         log.debug("Park mount")
         response = self._SendMsg(["mount", "park"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Park_Here(self):
         log.debug("Park mount here")
         response = self._SendMsg(["mount", "set_park_here"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Tracking_On(self):
         log.debug("Mount track on")
         response = self._SendMsg(["mount", "tracking_on"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Tracking_Off(self):
         log.debug("Mount track off")
         response = self._SendMsg(["mount", "tracking_off"])
+        log.debug(f"Telescope says {response}")
+        return response
 
     def Follow_TLE(self, tle):
         """
@@ -192,6 +216,7 @@ class LD_Planewave:
         response = self._SendMsg(["mount", "follow_tle"],
                                  **tle_Payload
                                  )
+        log.debug(f"Telescope says {response}")
         return response
 
 

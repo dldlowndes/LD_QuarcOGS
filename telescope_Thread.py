@@ -26,7 +26,7 @@ class telescope_Thread(QtCore.QThread):
 
     def __init__(self):
         QtCore.QThread.__init__(self)
-        
+
         log.debug("Init thread defaults")
 
         self.thread_Active = False
@@ -41,8 +41,9 @@ class telescope_Thread(QtCore.QThread):
         """
 
         log.debug(f"Connect to PWI4 HTTP server at {ip_Address}:{port}")
-        self.mount.Connect_IP(ip_Address, port)
+        response = self.mount.Connect_IP(ip_Address, port)
         self.thread_Active = True
+        return response
 
     def Connect_Mount(self):
         """
@@ -50,19 +51,19 @@ class telescope_Thread(QtCore.QThread):
         """
 
         log.debug("Connect PWI4 to telescope mount")
-        self.mount.Connect()
+        return self.mount.Connect()
 
     def Enable_Axis(self, axis):
         """
         Enable the set telescope axis.
         """
-        self.mount.Enable(axis)
+        return self.mount.Enable(axis)
 
     def Disable_Axis(self, axis):
         """
         Disable the set telescope axis
         """
-        self.mount.Disable(axis)
+        return self.mount.Disable(axis)
 
     def Disconnect(self):
         """
@@ -70,7 +71,7 @@ class telescope_Thread(QtCore.QThread):
         """
 
         log.debug("Disconnect PWI4 from telescope mount")
-        self.mount.Disconnect()
+        return self.mount.Disconnect()
 
     def Add_Waiting_TLE(self, tle, start, stop):
         """
@@ -146,41 +147,41 @@ class telescope_Thread(QtCore.QThread):
         """
 
         log.debug(f"Follow\n{tle}")
-        self.mount.Follow_TLE(tle)
+        return self.mount.Follow_TLE(tle)
 
     def Move_AltAz(self, alt, az):
         log.debug(f"Go to alt/az: {alt}, {az}")
-        self.mount.Goto_AltAz(alt, az)
+        return self.mount.Goto_AltAz(alt, az)
 
     def Move_RaDec(self, ra, dec, j2000):
         log.debug(f"Go to ra/dec {ra}, {dec}. J2000?{j2000}")
         if j2000:
-            self.mount.Goto_RaDec_J2000(ra, dec)
+            return self.mount.Goto_RaDec_J2000(ra, dec)
         else:
-            self.mount.Goto_RaDec_Apparent(ra, dec)
+            return self.mount.Goto_RaDec_Apparent(ra, dec)
 
     def Mount_Stop(self):
         log.debug("Stop mount")
-        self.mount.Stop()
+        return self.mount.Stop()
 
     def Mount_Park(self, here):
         log.debug("Park mount. Here?{here}")
         if here:
-            self.mount.Park_Here()
+            return self.mount.Park_Here()
         else:
-            self.mount.Park()
+            return self.mount.Park()
 
     def Mount_Home(self):
         log.debug("Home mount")
-        self.mount.Home()
+        return self.mount.Home()
 
     def Mount_Tracking(self, on):
         if on:
             log.debug("Mount tracking on")
-            self.mount.Tracking_On()
+            return self.mount.Tracking_On()
         else:
             log.debug("Mount tracking off")
-            self.mount.Tracking_Off()
+            return self.mount.Tracking_Off()
 
     def run(self):
         log.debug("Start mount status reports")

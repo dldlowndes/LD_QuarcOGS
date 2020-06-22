@@ -9,7 +9,7 @@ import datetime
 import logging
 import sys
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 import matplotlib
 from matplotlib.backends.backend_qt5agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -92,6 +92,10 @@ class MyWindow(QtWidgets.QMainWindow):
         # The telescope is *probably* connected to the local machine.
         self.ui.value_ip.setText("http://127.0.0.1")
         self.ui.value_port.setText("8220")
+
+        self.ui.group_Telescope_Status.setEnabled(False)
+        
+        #self.ui.table_TLEs.setColumnWidth(0, 150)
 
     def Init_Threads(self):
         """
@@ -189,9 +193,13 @@ class MyWindow(QtWidgets.QMainWindow):
     def On_Connect_Mount(self):
         """
         Instruct the telescope server to connect to the mount hardware.
+        Assuming it works, enable the remainder of the telescope GUI.
         """
 
-        self.telescope_Thread.Connect_Mount()
+        conn = self.telescope_Thread.Connect_Mount()
+        if conn.ok:
+            self.ui.group_Telescope_Status.setEnabled(True)
+        
 
     def On_Connect_Server(self):
         """
@@ -441,6 +449,8 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_Passes.setItem(i, 2, QtWidgets.QTableWidgetItem(time))
             self.ui.table_Passes.setItem(i, 3, QtWidgets.QTableWidgetItem(f"{az:0.2f}"))
 
+        self.ui.table_Passes.resizeColumnsToContents()
+
         self.Update_Plot(pass_Data)
 
     def On_Telescope_Status(self, pwi_Status):
@@ -505,6 +515,8 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_TLEs.setItem(i, 1, QtWidgets.QTableWidgetItem(tle[1]))
             self.ui.table_TLEs.setItem(i, 2, QtWidgets.QTableWidgetItem(tle[2]))
 
+        self.ui.table_TLEs.resizeColumnsToContents()
+
     def On_Waiting_Update(self, waiting_List):
         """
         In order to keep track of the elements in the waiting list, redraw it
@@ -524,6 +536,8 @@ class MyWindow(QtWidgets.QMainWindow):
             self.ui.table_Waiting.setItem(i, 0, QtWidgets.QTableWidgetItem(name))
             self.ui.table_Waiting.setItem(i, 1, QtWidgets.QTableWidgetItem(f"{start}"))
             self.ui.table_Waiting.setItem(i, 2, QtWidgets.QTableWidgetItem(f"{stop}"))
+
+        self.ui.table_Waiting.resizeColumnsToContents()
 
     def Update_Plot(self, pass_Data):
         """
