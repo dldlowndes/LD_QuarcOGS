@@ -320,7 +320,8 @@ class MyWindow(QtWidgets.QMainWindow):
         the text in the search box
         """
 
-        search = self.ui.value_Search.text()
+        search_Text = self.ui.value_Search.text()
+        search = search_Text.split(",")
         self.satellites_Thread.Search_List(search)
 
     def On_Stop_Button(self):

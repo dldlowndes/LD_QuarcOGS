@@ -1,7 +1,6 @@
 - Tidy up log levels - they're a random mix of DEBUG and INFO now.
 - Add option to GUI to get TLEs from the internet
 - Load multiple TLE files at once
-- Filter TLEs based on multiple terms
 - Show progress of sat finder in the GUI
 - Make the plot look nicer
 - Convert LST from the telescope mount to real time

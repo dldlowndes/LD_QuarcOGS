@@ -1,3 +1,4 @@
+import itertools
 import logging
 import requests
 import sys
@@ -65,14 +66,20 @@ class LD_TLEList:
 
         return search_Keys
 
-    def Search_And_Return(self, search_String):
+    def Search_And_Return(self, search):
         """
         Search the satellites names for a substring, return a
         list of all the matching satellites (eg searching "starlink" returns
         a list of about 400 My_TLE objects)
         """
 
-        search_Keys = self.Search_Keys(search_String)
+        if isinstance(search, str):
+            search_Keys = self.Search_Keys(search)
+        elif isinstance(search, (list, tuple, set)):
+            # Search for each keyword individually.
+            searches_List = [self.Search_Keys(this_Search.strip()) for this_Search in search]
+            # Flatten the list and remove duplicates (by making into a set)
+            search_Keys = set(itertools.chain.from_iterable(searches_List))
 
         return [self.Get_TLE(key) for key in search_Keys]
 
