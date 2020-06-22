@@ -335,7 +335,7 @@
        <item row="1" column="0">
         <layout class="QGridLayout" name="gridLayout_18">
          <item row="0" column="2">
-          <widget class="QGroupBox" name="groupBox_2">
+          <widget class="QGroupBox" name="box_Axis1">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -344,6 +344,12 @@
            </property>
            <property name="title">
             <string>Axis 1</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
            </property>
            <layout class="QGridLayout" name="gridLayout_17">
             <item row="0" column="0">
@@ -506,7 +512,10 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="box_Axis0">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -516,6 +525,12 @@
            <property name="title">
             <string>Axis 0</string>
            </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0">
              <layout class="QFormLayout" name="formLayout_4">
@@ -523,13 +538,6 @@
                <widget class="QLabel" name="label_a0_enabled">
                 <property name="text">
                  <string>Enabled?</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="value_a0_enabled">
-                <property name="readOnly">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -588,6 +596,9 @@
                  <bool>true</bool>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="value_a0_enabled"/>
               </item>
              </layout>
             </item>

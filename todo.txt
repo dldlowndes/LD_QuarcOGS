@@ -5,7 +5,6 @@
 - Make the plot look nicer
 - Convert LST from the telescope mount to real time
 - Add feature into GUI to send raw commands to the telescope
-- Decide when to enable axes (add GUI element as well?)
 - Error handling (telescope mount and otherwise)
 - Verify telescope commands before sending
 - Let pass finder accept datetime objects as well as string timestamps

@@ -135,6 +135,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.option_ip_local.stateChanged.connect(self.On_IP_Local_Click)
         self.ui.button_connect_mount.clicked.connect(self.On_Connect_Mount)
         self.ui.button_latlon_auto.clicked.connect(self.On_LatLon_Auto)
+        
+        self.ui.box_Axis0.clicked.connect(self.On_Axis0_Click)
+        self.ui.box_Axis1.clicked.connect(self.On_Axis1_Click)
 
         # Mount movement buttons
         self.ui.button_tle_track.clicked.connect(self.On_TLE_Track_Button)
@@ -166,6 +169,22 @@ class MyWindow(QtWidgets.QMainWindow):
     ##########################################################################
     # Button event handlers
     ##########################################################################
+
+    def On_Axis0_Click(self):
+        a0_State = self.ui.box_Axis0.isChecked()
+        
+        if a0_State:
+            self.telescope_Thread.Enable_Axis(0)
+        else:
+            self.telescope_Thread.Disable_Axis(0)
+    
+    def On_Axis1_Click(self):
+        a1_State = self.ui.box_Axis1.isChecked()
+        
+        if a1_State:
+            self.telescope_Thread.Enable_Axis(1)
+        else:
+            self.telescope_Thread.Disable_Axis(1)
 
     def On_Connect_Mount(self):
         """

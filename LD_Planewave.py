@@ -73,21 +73,17 @@ class LD_Planewave:
         log.debug("Disconnect from telescope hardware")
         response = self._SendMsg(["mount", "disconnect"])
 
-    def Enable(self):
+    def Enable(self, axis):
         """
-        Enable both axes at once.
+        Enable chosen axis
         """
-        for axis_Number in [0, 1]:
-            log.debug(f"Enable axis {axis_Number}")
-            self._SendMsg(["mount", "enable"], axis=axis_Number)
+        self._SendMsg(["mount", "enable"], axis=axis)
 
-    def Disable(self):
+    def Disable(self, axis):
         """
-        Disable both axes at once.
+        Disable chosen axis
         """
-        for axis_Number in [0, 1]:
-            log.debug(f"Disable axis {axis_Number}")
-            response = self._SendMsg(["mount", "disable"], axis=axis_Number)
+        response = self._SendMsg(["mount", "disable"], axis=axis)
 
     def Status(self):
         """

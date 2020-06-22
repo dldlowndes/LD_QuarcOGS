@@ -47,16 +47,26 @@ class telescope_Thread(QtCore.QThread):
     def Connect_Mount(self):
         """
         connect to the physical hardware.
-        TODO: And enable axes?
         """
 
         log.debug("Connect PWI4 to telescope mount")
         self.mount.Connect()
 
+    def Enable_Axis(self, axis):
+        """
+        Enable the set telescope axis.
+        """
+        self.mount.Enable(axis)
+
+    def Disable_Axis(self, axis):
+        """
+        Disable the set telescope axis
+        """
+        self.mount.Disable(axis)
+
     def Disconnect(self):
         """
         Disconnect from the telescope
-        TODO: And disable axes?
         """
 
         log.debug("Disconnect PWI4 from telescope mount")
