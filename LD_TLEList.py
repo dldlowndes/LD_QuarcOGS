@@ -12,13 +12,12 @@ class LD_TLEList:
     Get TLE database from a file (local or internet).
     """
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, internet=False):
         """
         Get the TLE data and sort it into a nice structure.
         """
 
         if (path == "") or isinstance(path, type(None)):
-            # Get list from the internet later.
             log.warn(""""
                   No TLE list loaded initially; use Load_TLEs_From_URL to get
                   list from a website or use Load_TLEs_From_File to load a
@@ -26,8 +25,10 @@ class LD_TLEList:
                   """)
             pass
         else:
-            # Load the list locally.
-            self.Load_TLEs_From_File(path)
+            if internet:
+                self.Load_TLEs_From_URL(path)    
+            else:
+                self.Load_TLEs_From_File(path)
 
     def Load_TLEs_From_File(self, path):
         log.debug(f"Load TLEs from file: {path}")

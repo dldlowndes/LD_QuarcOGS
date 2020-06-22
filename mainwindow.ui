@@ -1143,7 +1143,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabs_Calculator">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_TLEs">
              <attribute name="title">
@@ -1154,12 +1154,8 @@
                <layout class="QGridLayout" name="gridLayout_15">
                 <item row="0" column="0">
                  <layout class="QGridLayout" name="gridLayout_11">
-                  <item row="0" column="2">
-                   <widget class="QPushButton" name="button_LoadFile">
-                    <property name="text">
-                     <string>Load File</string>
-                    </property>
-                   </widget>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="value_Filename"/>
                   </item>
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_Filename">
@@ -1168,21 +1164,12 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QLineEdit" name="value_Filename"/>
-                  </item>
                   <item row="0" column="3">
-                   <spacer name="horizontalSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QCheckBox" name="option_tle_internet">
+                    <property name="text">
+                     <string>is URL?</string>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
+                   </widget>
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_Search">
@@ -1191,15 +1178,29 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QLineEdit" name="value_Search"/>
-                  </item>
                   <item row="1" column="2">
                    <widget class="QPushButton" name="button_Search">
                     <property name="text">
                      <string>Filter</string>
                     </property>
                    </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Comma delimited list for multiple search terms</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="button_LoadFile">
+                    <property name="text">
+                     <string>Load File</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="value_Search"/>
                   </item>
                  </layout>
                 </item>

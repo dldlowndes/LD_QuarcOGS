@@ -272,8 +272,11 @@ class MyWindow(QtWidgets.QMainWindow):
         """
         Load a TLE list from file.
         """
-
-        self.satellites_Thread.Load_List(self.ui.value_Filename.text())
+        
+        list_Name = self.ui.value_Filename.text()
+        internet = self.ui.option_tle_internet.isChecked()
+        
+        self.satellites_Thread.Load_List(list_Name, internet)
 
     def On_Park_Button(self):
         """
