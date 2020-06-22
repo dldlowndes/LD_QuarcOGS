@@ -9,7 +9,7 @@ import datetime
 import logging
 import sys
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 import matplotlib
 from matplotlib.backends.backend_qt5agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -175,16 +175,22 @@ class MyWindow(QtWidgets.QMainWindow):
     ##########################################################################
 
     def On_Axis0_Click(self):
+        """
+        Enable telescope axis 0 (and the associated GUI elements)
+        """
         a0_State = self.ui.box_Axis0.isChecked()
-        
+
         if a0_State:
             self.telescope_Thread.Enable_Axis(0)
         else:
             self.telescope_Thread.Disable_Axis(0)
-    
+
     def On_Axis1_Click(self):
+        """
+        Enable telescope axis 0 (and the associated GUI elements)
+        """
         a1_State = self.ui.box_Axis1.isChecked()
-        
+
         if a1_State:
             self.telescope_Thread.Enable_Axis(1)
         else:
@@ -199,7 +205,6 @@ class MyWindow(QtWidgets.QMainWindow):
         conn = self.telescope_Thread.Connect_Mount()
         if conn.ok:
             self.ui.group_Telescope_Status.setEnabled(True)
-        
 
     def On_Connect_Server(self):
         """
@@ -581,6 +586,7 @@ class MyWindow(QtWidgets.QMainWindow):
             self.axes.text(label_pos_x, label_pos_y, label_text)
 
         self.canvas.draw()
+
 
 log.info("""
     ########################################################################

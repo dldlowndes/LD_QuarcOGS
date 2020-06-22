@@ -66,12 +66,18 @@ class LD_Planewave:
         return response
 
     def Connect(self):
+        """
+        Connect to the telescope hardware.
+        """
         log.debug("Connect to telescope hardware")
         response = self._SendMsg(["mount", "connect"])
         log.debug(f"Telescope says {response}")
         return response
 
     def Disconnect(self):
+        """
+        Disconnect from the telescope hardware.
+        """
         log.debug("Disconnect from telescope hardware")
         response = self._SendMsg(["mount", "disconnect"])
         log.debug(f"Telescope says {response}")

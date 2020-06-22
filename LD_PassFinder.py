@@ -87,14 +87,18 @@ class LD_PassFinder:
         # numpy arrays so do the relevant conversions.
         self.jd_Range = np.array([x.jd for x in self.utc_Time_Series])
 
-
         # astropy still wants the time stamps in utc_Time_Series, which map to
-        # the ones in jd_Range. But should they actually both be in one (slicable?)
-        # container to ensure they are definitely referring to the same times?
+        # (slicable?) the ones in jd_Range. But should they actually both be in
+        # one container to ensure they are definitely referring to the same
+        # times?
 
         return self.utc_Time_Series
 
     def _Timestamp_Convert(self, stamp):
+        """
+        Convert timestamps (either ISO strings or datetime objects) into
+        localized astropy time stamps.
+        """
         # Seems sensible that the user inputs the datetime in their local time
         # so step 1 of interpreting is getting said time zone.
         self.my_tz = tzlocal.get_localzone()

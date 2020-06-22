@@ -1,3 +1,3 @@
 #!/bin/sh
 
-pyuic5 settings_gui.ui > settings_gui.py
+pyuic5 -o settings_gui.py settings_gui.ui

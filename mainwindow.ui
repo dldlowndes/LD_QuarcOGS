@@ -202,7 +202,7 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label_alt_status">
                   <property name="text">
-                   <string>Alt</string>
+                   <string>Alt (°)</string>
                   </property>
                  </widget>
                 </item>
@@ -216,21 +216,21 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_ra_status">
                   <property name="text">
-                   <string>RA</string>
+                   <string>RA (hrs)</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_az_status">
                   <property name="text">
-                   <string>Az</string>
+                   <string>Az (°)</string>
                   </property>
                  </widget>
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_dec_status">
                   <property name="text">
-                   <string>Dec</string>
+                   <string>Dec (°)</string>
                   </property>
                  </widget>
                 </item>
@@ -501,7 +501,7 @@
               <item row="2" column="0">
                <widget class="QLabel" name="label_telescope_height">
                 <property name="text">
-                 <string>Height</string>
+                 <string>Height (m)</string>
                 </property>
                </widget>
               </item>
@@ -533,7 +533,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_telescope_lon">
                 <property name="text">
-                 <string>Longitude</string>
+                 <string>Longitude (°E)</string>
                 </property>
                </widget>
               </item>
@@ -572,7 +572,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="label_telescope_lat">
                 <property name="text">
-                 <string>Latitude</string>
+                 <string>Latitude (°N)</string>
                 </property>
                </widget>
               </item>
@@ -674,7 +674,7 @@
                   <item row="2" column="0">
                    <widget class="QLabel" name="label_az_cmd">
                     <property name="text">
-                     <string>Az</string>
+                     <string>Az (°)</string>
                     </property>
                    </widget>
                   </item>
@@ -687,7 +687,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>Alt</string>
+                     <string>Alt (°)</string>
                     </property>
                    </widget>
                   </item>
@@ -731,14 +731,14 @@
                          </sizepolicy>
                         </property>
                         <property name="text">
-                         <string>RA</string>
+                         <string>RA (hrs)</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_dec_cmd">
                         <property name="text">
-                         <string>Dec</string>
+                         <string>Dec (°)</string>
                         </property>
                        </widget>
                       </item>
@@ -1143,7 +1143,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabs_Calculator">
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_TLEs">
              <attribute name="title">
@@ -1234,7 +1234,7 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_6">
                   <property name="text">
-                   <string>Double click TLEs in this list to add to the direct control TLE tracking control</string>
+                   <string>Double click TLEs in this list to copy TLE string to the direct control TLE tracking window</string>
                   </property>
                  </widget>
                 </item>
