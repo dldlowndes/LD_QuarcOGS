@@ -153,6 +153,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_cmd_stop.clicked.connect(self.On_Stop_Button)
         self.ui.button_cmd_park.clicked.connect(self.On_Park_Button)
         self.ui.option_tracking.stateChanged.connect(self.On_Tracking_Click)
+        
+        self.ui.button_cmd_raw.clicked.connect(self.On_Raw_Cmd)
 
     def Init_Plot(self):
         """
@@ -348,6 +350,13 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.label_Status.setText("Status: Processing")
         # Actually do the processing.
         self.satellites_Thread.start()
+
+    def On_Raw_Cmd(self):
+        cmd_Str = self.ui.value_cmd_raw.text()
+        
+        response = self.telescope_Thread.Raw_Cmd(cmd_Str)
+        
+        self.ui.value_cmd_response.setText(f"{response.status_code}: {response.reason}")
 
     def On_Search_Button(self):
         """

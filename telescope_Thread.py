@@ -183,6 +183,9 @@ class telescope_Thread(QtCore.QThread):
             log.debug("Mount tracking off")
             return self.mount.Tracking_Off()
 
+    def Raw_Cmd(self, cmd):
+        return self.mount.Raw_Command(cmd)
+
     def run(self):
         log.debug("Start mount status reports")
         while self.thread_Active:

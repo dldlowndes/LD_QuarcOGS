@@ -20,7 +20,7 @@ class LD_Planewave:
 
         if ip_Address != "":
             log.debug(f"Connecting to {ip_Address}:{port}")
-            self.Connect(ip_Address, port)
+            self.Connect_IP(ip_Address, port)
         else:
             log.warn("No IP address supplied (yet). Use Connect_IP(ip, port) later")
 
@@ -216,7 +216,7 @@ class LD_Planewave:
             tle_Payload = tle
         elif isinstance(tle, LD_MyTLE.LD_MyTLE):
             tle_Payload = tle.Dict
-            
+
         log.debug(f"Follow TLE named {tle_Payload['line0']}")
 
         response = self._SendMsg(["mount", "follow_tle"],
@@ -224,6 +224,18 @@ class LD_Planewave:
                                  )
         log.debug(f"Telescope says {response}")
         return response
+
+    def Raw_Command(self, raw_Str):
+        """
+        Allow (an advanced?) user to speficy some exact raw command to the
+        mount. (i.e.) a specific HTTP request and return the response.
+        """
+        
+        if isinstance(raw_Str, str):
+            response = self._SendMsg(raw_Str)
+            return response
+        else:
+            log.warn("Raw commands can only be strings")
 
 
 if __name__ == "__main__":
