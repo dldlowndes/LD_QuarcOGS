@@ -193,8 +193,8 @@ class MyWindow(QtWidgets.QMainWindow):
         Instruct the telescope mount to go to a specific alt/az
         """
 
-        alt = float(self.ui.value_alt_cmd.text())
-        az = float(self.ui.value_az_cmd.text())
+        alt = self.ui.value_alt_cmd.value()
+        az = self.ui.value_az_cmd.value()
 
         self.telescope_Thread.Move_AltAz(alt, az)
 
@@ -204,8 +204,8 @@ class MyWindow(QtWidgets.QMainWindow):
         specified coordinate system (apparent or j2000)
         """
 
-        ra = float(self.ui.value_ra_cmd.text())
-        dec = float(self.ui.value_dec_cmd.text())
+        ra = self.ui.value_ra_cmd.value()
+        dec = self.ui.value_dec_cmd.value()
         j2000 = self.ui.option_cmd_j2000.isChecked()
 
         self.telescope_Thread.Move_RaDec(ra, dec, j2000)

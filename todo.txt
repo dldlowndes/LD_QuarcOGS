@@ -14,3 +14,4 @@
 - Find the most visible satellite *now* (or within some short time)
 - Verify that PWI_Status parses info from the hardware correctly
 - Assert the TLE checksums are how they should be
+- Go to the moon (and track it?)

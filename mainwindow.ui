@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1281</width>
+    <width>1291</width>
     <height>767</height>
    </rect>
   </property>
@@ -619,45 +619,57 @@
                </size>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tab_goto_altaz">
                <attribute name="title">
                 <string>Alt/Az</string>
                </attribute>
                <layout class="QGridLayout" name="gridLayout_28">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="lebel_alt_cmd">
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="button_goto_altaz">
                   <property name="text">
-                   <string>Alt</string>
+                   <string>Go to alt/az</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="value_alt_cmd">
-                  <property name="readOnly">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <widget class="QLabel" name="label_az_cmd">
                   <property name="text">
                    <string>Az</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="value_az_cmd">
-                  <property name="readOnly">
-                   <bool>false</bool>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="lebel_alt_cmd">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="text">
+                   <string>Alt</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QDoubleSpinBox" name="value_alt_cmd">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
+                  <property name="maximum">
+                   <double>90.000000000000000</double>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QPushButton" name="button_goto_altaz">
-                  <property name="text">
-                   <string>Go to alt/az</string>
+                 <widget class="QDoubleSpinBox" name="value_az_cmd">
+                  <property name="decimals">
+                   <number>6</number>
+                  </property>
+                  <property name="maximum">
+                   <double>360.000000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -674,15 +686,14 @@
                    <layout class="QGridLayout" name="gridLayout_30">
                     <item row="0" column="0">
                      <widget class="QLabel" name="label_ra_cmd">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
                       <property name="text">
                        <string>RA</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QLineEdit" name="value_ra_cmd">
-                      <property name="readOnly">
-                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -693,10 +704,35 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="0" column="1">
+                     <widget class="QDoubleSpinBox" name="value_ra_cmd">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="maximum">
+                       <double>24.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="1" column="1">
-                     <widget class="QLineEdit" name="value_dec_cmd">
-                      <property name="readOnly">
-                       <bool>false</bool>
+                     <widget class="QDoubleSpinBox" name="value_dec_cmd">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="maximum">
+                       <double>90.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -704,6 +740,12 @@
                   </item>
                   <item>
                    <widget class="QCheckBox" name="option_cmd_j2000">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
                      <string>J2000?</string>
                     </property>
