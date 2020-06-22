@@ -18,7 +18,7 @@ class LD_TLEList:
         """
 
         if (path == "") or isinstance(path, type(None)):
-            log.warn(""""
+            log.warning(""""
                   No TLE list loaded initially; use Load_TLEs_From_URL to get
                   list from a website or use Load_TLEs_From_File to load a
                   local file.

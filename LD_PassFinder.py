@@ -143,7 +143,7 @@ class LD_PassFinder:
             self.tle_List = LD_TLEList.LD_TLEList()
             self.tle_List.Load_TLEs_From_URL(url)
         else:
-            log.warn("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
+            log.warning("tle_List provided was neither a string, nor a LD_TLEList object. Nothing happened")
 
         log.info(f"{len(self.tle_List)} TLEs in the list")
 
@@ -195,12 +195,12 @@ class LD_PassFinder:
             e, p, v = sat.sgp4_array(self.jd_Range, np.zeros_like(self.jd_Range))
             if isinstance(e, int):
                 if e != 0:
-                    log.warn(f"Error with {tle.name}. Skipping")
+                    log.warning(f"Error with {tle.name}. Skipping")
                     self.errors.append([tle.name, e])
                     continue
             elif isinstance(e, np.ndarray):
                 if sum(e) != 0:
-                    log.warn(f"Error with {tle.name}. Skipping")
+                    log.warning(f"Error with {tle.name}. Skipping")
                     self.errors.append([tle.name, e])
                     continue
 
@@ -226,7 +226,7 @@ class LD_PassFinder:
             self.altaz_Data.append([tle, data])
 
         if len(self.errors) > 0:
-            log.warn(f"Some errors, see {self.errors}")
+            log.warning(f"Some errors, see {self.errors}")
             
         log.info(f"Finished. {len(self.altaz_Data)} calculated with {len(self.errors)} errors")
         return self.altaz_Data

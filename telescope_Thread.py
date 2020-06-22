@@ -105,10 +105,10 @@ class telescope_Thread(QtCore.QThread):
             # Emit the list so the GUI can update.
             self.waiting_Signal.emit(self.waiting_List)
         elif (now < stop):
-            log.warn("Error? pass already started. tracking remainder of it")
+            log.warning("Error? pass already started. tracking remainder of it")
             self.Follow_TLE(tle)
         else:
-            log.warn("Error, pass has already happened.")
+            log.warning("Error, pass has already happened.")
 
     def Remove_Waiting_TLE(self, index):
         """

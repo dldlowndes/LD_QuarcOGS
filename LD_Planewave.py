@@ -22,7 +22,7 @@ class LD_Planewave:
             log.debug(f"Connecting to {ip_Address}:{port}")
             self.Connect_IP(ip_Address, port)
         else:
-            log.warn("No IP address supplied (yet). Use Connect_IP(ip, port) later")
+            log.warning("No IP address supplied (yet). Use Connect_IP(ip, port) later")
 
     def Connect_IP(self, ip_Address="http://127.0.0.1", port="8220"):
         self.base_Url = f"{ip_Address}:{port}"
@@ -50,7 +50,7 @@ class LD_Planewave:
             log.debug("Direct command {cmd_url}")
         else:
             cmd_Url = ""
-            log.warn("Don't know how to interpret {command} of type {type(command)}")
+            log.warning("Don't know how to interpret {command} of type {type(command)}")
 
         # Make the GET request including the parameters (if present)
         response = requests.get(cmd_Url, kwargs)
@@ -59,9 +59,9 @@ class LD_Planewave:
         if response.status_code == 200:
             self.status.Update(response)
         else:
-            log.warn(f"Response code {response.status_code}")
-            log.warn(f"{response.reason}: {response.content}")
-            log.warn(f"Request was {response.url}")
+            log.warning(f"Response code {response.status_code}")
+            log.warning(f"{response.reason}: {response.content}")
+            log.warning(f"Request was {response.url}")
 
         return response
 
@@ -235,7 +235,7 @@ class LD_Planewave:
             response = self._SendMsg(raw_Str)
             return response
         else:
-            log.warn("Raw commands can only be strings")
+            log.warning("Raw commands can only be strings")
 
 
 if __name__ == "__main__":
