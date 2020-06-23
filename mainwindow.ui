@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1291</width>
-    <height>767</height>
+    <width>1728</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1178,13 +1178,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="3">
-                   <widget class="QCheckBox" name="option_tle_internet">
-                    <property name="text">
-                     <string>is URL?</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="label_Search">
                     <property name="text">
@@ -1215,6 +1208,27 @@
                   </item>
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="value_Search"/>
+                  </item>
+                  <item row="0" column="4">
+                   <layout class="QHBoxLayout" name="horizontalLayout_10"/>
+                  </item>
+                  <item row="0" column="3">
+                   <layout class="QHBoxLayout" name="horizontalLayout_12">
+                    <item>
+                     <widget class="QCheckBox" name="option_append_file">
+                      <property name="text">
+                       <string>append?</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="option_tle_internet">
+                      <property name="text">
+                       <string>is URL?</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                  </layout>
                 </item>

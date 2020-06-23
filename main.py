@@ -94,7 +94,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.value_port.setText("8220")
 
         self.ui.group_Telescope_Status.setEnabled(False)
-        
+
         #self.ui.table_TLEs.setColumnWidth(0, 150)
 
     def Init_Threads(self):
@@ -139,7 +139,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.option_ip_local.stateChanged.connect(self.On_IP_Local_Click)
         self.ui.button_connect_mount.clicked.connect(self.On_Connect_Mount)
         self.ui.button_latlon_auto.clicked.connect(self.On_LatLon_Auto)
-        
+
         self.ui.box_Axis0.clicked.connect(self.On_Axis0_Click)
         self.ui.box_Axis1.clicked.connect(self.On_Axis1_Click)
 
@@ -153,7 +153,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.ui.button_cmd_stop.clicked.connect(self.On_Stop_Button)
         self.ui.button_cmd_park.clicked.connect(self.On_Park_Button)
         self.ui.option_tracking.stateChanged.connect(self.On_Tracking_Click)
-        
+
         self.ui.button_cmd_raw.clicked.connect(self.On_Raw_Cmd)
 
     def Init_Plot(self):
@@ -274,11 +274,12 @@ class MyWindow(QtWidgets.QMainWindow):
         """
         Load a TLE list from file.
         """
-        
+        append = self.ui.option_append_file.isChecked()
+
         list_Name = self.ui.value_Filename.text()
         internet = self.ui.option_tle_internet.isChecked()
-        
-        self.satellites_Thread.Load_List(list_Name, internet)
+
+        self.satellites_Thread.Load_List(list_Name, internet, append)
 
     def On_Park_Button(self):
         """
@@ -353,9 +354,9 @@ class MyWindow(QtWidgets.QMainWindow):
 
     def On_Raw_Cmd(self):
         cmd_Str = self.ui.value_cmd_raw.text()
-        
+
         response = self.telescope_Thread.Raw_Cmd(cmd_Str)
-        
+
         self.ui.value_cmd_response.setText(f"{response.status_code}: {response.reason}")
 
     def On_Search_Button(self):

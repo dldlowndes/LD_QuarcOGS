@@ -4,7 +4,6 @@
 - Verify that PWI_Status parses info from the hardware correctly
 
 # Medium:
-- Load multiple TLE files at once
 - Error handling (telescope mount and otherwise)
 - Add option to filter passes by azimuth
 - Assert the TLE checksums are how they should be

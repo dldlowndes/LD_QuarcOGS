@@ -17,8 +17,10 @@ class LD_TLEList:
         Get the TLE data and sort it into a nice structure.
         """
 
+        self.tle_Dict = {}
+
         if (path == "") or isinstance(path, type(None)):
-            log.warning(""""
+            log.debug(""""
                   No TLE list loaded initially; use Load_TLEs_From_URL to get
                   list from a website or use Load_TLEs_From_File to load a
                   local file.
@@ -26,33 +28,51 @@ class LD_TLEList:
             pass
         else:
             if internet:
-                self.Load_TLEs_From_URL(path)    
+                self.Load_TLEs_From_URL(path)
             else:
                 self.Load_TLEs_From_File(path)
 
-    def Load_TLEs_From_File(self, path):
+    def Load_TLEs_From_File(self, path, append=False):
         log.debug(f"Load TLEs from file: {path}")
         data = open(path).read()
         flatlist = data.split("\n")
 
-        self._Parse_File(flatlist)
+        self._Parse_File(flatlist, append)
 
-    def Load_TLEs_From_URL(self, url):
+    def Load_TLEs_From_URL(self, url, append=False):
         log.debug(f"Load TLEs from URL: {url}")
         req = requests.get(url)
         flatlist = req.text.split("\r\n")
 
-        self._Parse_File(flatlist)
+        self._Parse_File(flatlist, append)
 
-    def _Parse_File(self, flatlist):
+    def _Parse_File(self, flatlist, append):
+        """
+        Pass in plan text of TLE list. Each line is a TLE element so every 3
+        lines is a new TLE. Parse this and put into the dictionary that this
+        class uses to hold the TLEs.
+        If append is true, it keeps any old values that were in the dict before
+        this function was called. Any duplicates are overwritten (updated?)
+        """
+
         # Every 3rd line is a satellite name. Extract them and trim the whitespace off.
         tle_Names = map(lambda x: x.rstrip(), flatlist[0::3])
         # Reshape the data from the file grouped into threes
         tle_List = zip(flatlist[0::3], flatlist[1::3], flatlist[2::3])
-        # Put the data into a dict
-        self.tle_Dict = {key:LD_MyTLE.LD_MyTLE(data) for (key, data) in zip(tle_Names, tle_List)}
 
-        log.debug(f"Loaded {self.__len__()} TLEs")
+        # If not appending, clear any previously held values.
+        if not append:
+            self.tle_Dict = {}
+
+        # Put the data into a dict - old way before appending.
+        #self.tle_Dict = {key:LD_MyTLE.LD_MyTLE(data) for (key, data) in zip(tle_Names, tle_List)}
+        # Put the data into a dict - new way, allows appending.
+        for i, (key, data) in enumerate(zip(tle_Names, tle_List)):
+            self.tle_Dict[key] = LD_MyTLE.LD_MyTLE(data)
+
+        if append:
+            log.debug(f"Added {i} additional TLEs")
+        log.debug(f"List contains {self.__len__()} TLEs")
 
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}

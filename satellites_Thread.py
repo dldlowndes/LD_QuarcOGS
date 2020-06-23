@@ -37,11 +37,16 @@ class satellites_Thread(QtCore.QThread):
 
         self.degrees = 0
 
+        self.my_TLE_List = LD_TLEList.LD_TLEList()
         self.finder = LD_PassFinder.LD_PassFinder()
 
-    def Load_List(self, filename, internet):
-        log.debug(f"Load TLE list {filename}")
-        self.my_TLE_List = LD_TLEList.LD_TLEList(filename, internet)
+
+    def Load_List(self, filename, internet, append=False):
+        log.debug(f"Load TLE list {filename}, append? {append}")
+        if internet:
+            self.my_TLE_List.Load_TLEs_From_URL(filename, append)
+        else:
+            self.my_TLE_List.Load_TLEs_From_File(filename, append)
         self.finder.Load_TLE_Data(self.my_TLE_List)
         self.tles = self.finder.Search_TLE_Data("")
         self.tles_Signal.emit(self.tles)
