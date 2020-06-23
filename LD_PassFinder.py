@@ -44,6 +44,10 @@ class LD_PassFinder:
         self.here = None
         self.tle_List = None
 
+        # Knowing timezone seems to be useful a lot of the time so let's put
+        # it in the constructor.
+        self.my_tz = tzlocal.get_localzone()
+
     def Set_Position(self, lat, long, height):
         """
         Set the latitude, longitude and height above sea level of the OGS
@@ -99,20 +103,19 @@ class LD_PassFinder:
         Convert timestamps (either ISO strings or datetime objects) into
         localized astropy time stamps.
         """
-        # Seems sensible that the user inputs the datetime in their local time
-        # so step 1 of interpreting is getting said time zone.
-        self.my_tz = tzlocal.get_localzone()
-
-        # Figure out if a ISO8601 string or datetime object were supplied.
-        if isinstance(stamp, str):
-            stamp_local = self.my_tz.localize(dateutil.parser.parse(stamp))
-        elif isinstance(stamp, datetime.datetime):
-            stamp_local = self.my_tz.localize(stamp)
-        else:
+        if not isinstance(stamp, (str, datetime.datetime)):
             raise TypeError
 
+        # If a string was supplied, convert to datetime stamp.
+        if isinstance(stamp, str):
+            stamp = self.my_tz.localize(dateutil.parser.parse(stamp))
+
+        # Localize the time (if necessary)
+        if (stamp.tzinfo is None) or (stamp.tzinfo.utcoffset(stamp) is None):
+             stamp = self.my_tz.localize(stamp)
+
         # And make into an astropy time object (in UTC)
-        return astropy.time.Time(stamp_local)
+        return astropy.time.Time(stamp)
 
     def Get_Local_Times(self):
         """
@@ -227,7 +230,7 @@ class LD_PassFinder:
 
         if len(self.errors) > 0:
             log.warning(f"Some errors, see {self.errors}")
-            
+
         log.info(f"Finished. {len(self.altaz_Data)} calculated with {len(self.errors)} errors")
         return self.altaz_Data
 
@@ -354,8 +357,8 @@ class LD_PassFinder:
         just crash.
         """
 
-        log.debug("Plot all passes")        
-        
+        log.debug("Plot all passes")
+
         fig, my_ax = plt.subplots()
         my_ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter("%H:%M:%S"))
         for sat, data in self.altaz_Data:

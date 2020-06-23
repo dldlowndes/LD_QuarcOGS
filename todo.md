@@ -1,7 +1,6 @@
 # Easy:
 - Tidy up log levels - they're a random mix of DEBUG and INFO now.
 - Verify telescope commands before sending
-- Let pass finder accept datetime objects as well as string timestamps
 - Verify that PWI_Status parses info from the hardware correctly
 
 # Medium:
