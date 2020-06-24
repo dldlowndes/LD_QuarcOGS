@@ -62,41 +62,27 @@ class LD_MyTLE:
         for b in blanks_Line2:
             assert self.tle_Dict["line2"][b] == " "
 
-        self.name = self.tle_Dict["line0"]
+        # Ensure line 1 starts with a "1" and line 2 a "2"
+        assert self.tle_Dict["line1"][0] == "1"
+        assert self.tle_Dict["line2"][0] == "2"
 
-        self.line1 = self.tle_Dict["line1"][0]
-        self.catalog_Number = self.tle_Dict["line1"][2:7]
-        self.classification = self.tle_Dict["line1"][7]
-        self.designator = self.tle_Dict["line1"][9:17]
-        self.epoch_str = self.tle_Dict["line1"][18:32]
-        # Translate epoch straight into something actually useful!
-        epoch_year = datetime.datetime(2000 + int(self.epoch_str[:2]), 1, 1)
-        epoch_days = datetime.timedelta(days=float(self.epoch_str[2:]))
-        self.epoch = epoch_year + epoch_days
-        self.first_Derivative = self.tle_Dict["line1"][33:43]
-        self.second_Derivative = self.tle_Dict["line1"][44:52]
-        self.drag_Term = self.tle_Dict["line1"][53:61]
-        self.ephemeris_Type = self.tle_Dict["line1"][62]
-        self.set_Number = self.tle_Dict["line1"][64:68]
+        # Wikipedia says ephemeris type is always 0 so let's test that.
+        assert self.ephemeris_type == 0
+
+        # Catalog number is in both lines so might as well make sure they match
+        assert int(self.tle_Dict["line2"][2:7]) == self.catalog_Number
+
         self.checksum_1 = self.tle_Dict["line1"][68]
         my_checksum_1 = Calc_Checksum(self.tle_Dict["line1"])
         # Ensure the checksum value in the line matches the calculated checksum
         assert int(self.checksum_1) == my_checksum_1
 
-        self.line2 = self.tle_Dict["line2"][0]
-        # Catalog number is in both lines so might as well make sure they match
-        assert self.tle_Dict["line2"][2:7] == self.catalog_Number
-        self.inclination = self.tle_Dict["line2"][8:16]
-        self.raan = self.tle_Dict["line2"][17:25]
-        self.eccentricity = self.tle_Dict["line2"][26:33]
-        self.perigree = self.tle_Dict["line2"][34:42]
-        self.mean_anomaly = self.tle_Dict["line2"][43:51]
-        self.mean_motion = self.tle_Dict["line2"][52:63]
-        self.revolution_Number = self.tle_Dict["line2"][63:68]
         self.checksum_2 = self.tle_Dict["line2"][68]
         my_checksum_2 = Calc_Checksum(self.tle_Dict["line2"])
         # Ensure the checksum value in the line matches the calculated checksum
         assert int(self.checksum_2) == my_checksum_2
+
+
 
     @property
     def Dict(self):
@@ -130,3 +116,88 @@ class LD_MyTLE:
         Allows direct access to the TLE lines.
         """
         return list(self.tle_Dict.values())[i]
+
+    @property
+    def name(self):
+        return self.tle_Dict["line0"]
+
+    @property
+    def catalog_Number(self):
+        return int(self.tle_Dict["line1"][2:7])
+
+    @property
+    def classification(self):
+        return self.tle_Dict["line1"][7]
+
+    @property
+    def designator(self):
+        des = self.tle_Dict["line1"][9:17]
+        launch_year = int(des[0:2])
+        launch_num = int(des[2:5])
+        inter_des = des[5:7].strip()
+        return launch_year, launch_num, inter_des
+
+    @property
+    def epoch(self):
+        self.epoch_str = self.tle_Dict["line1"][18:32]
+        # Translate epoch straight into something actually useful!
+        epoch_year = datetime.datetime(2000 + int(self.epoch_str[:2]), 1, 1)
+        epoch_days = datetime.timedelta(days=float(self.epoch_str[2:]))
+        epoch = epoch_year + epoch_days
+        return epoch
+
+    @property
+    def first_derivative(self):
+        return float(self.tle_Dict["line1"][33:43])
+
+    @property
+    def second_derivative(self):
+        line = self.tle_Dict["line1"][44:52]
+        decimal, power = line.split("-")
+        value = float("0." + decimal.strip()) * 10**-int(power)
+        return value
+
+    @property
+    def drag_term(self):
+        line = self.tle_Dict["line1"][53:61]
+        decimal, power = line.split("-")
+        value = float("0." + decimal.strip()) * 10**-int(power)
+        return value
+
+    @property
+    def ephemeris_type(self):
+        return int(self.tle_Dict["line1"][62])
+
+    @property
+    def set_number(self):
+        return int(self.tle_Dict["line1"][64:68])
+
+    @property
+    def inclination(self):
+        return float(self.tle_Dict["line2"][8:16])
+
+    @property
+    def raan(self):
+        return float(self.tle_Dict["line2"][17:25])
+
+    @property
+    def eccentricity(self):
+        line = self.tle_Dict["line2"][26:33]
+        value = float("0."+line.strip())
+        return value
+
+    @property
+    def perigree(self):
+        return float(self.tle_Dict["line2"][34:42])
+
+    @property
+    def mean_anomaly(self):
+        return float(self.tle_Dict["line2"][43:51])
+
+    @property
+    def mean_motion(self):
+        return float(self.tle_Dict["line2"][52:63])
+
+    @property
+    def revolution_number(self):
+        return int(self.tle_Dict["line2"][63:68])
