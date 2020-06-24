@@ -6,7 +6,7 @@
 # Medium:
 - Error handling (telescope mount and otherwise)
 - Add option to filter passes by azimuth
-- Assert the TLE checksums are how they should be
+- Parse TLE element values into appropriate variables (not strings) (use @property to remove overhead?)
 - Go to the moon (and track it?)
 
 # Hard/Boring:

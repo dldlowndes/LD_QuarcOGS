@@ -49,8 +49,7 @@ class LD_TLEList:
     def _Parse_File(self, flatlist, append):
         """
         Pass in plan text of TLE list. Each line is a TLE element so every 3
-        lines is a new TLE. Parse this and put into the dictionary that this
-        class uses to hold the TLEs.
+tt        class uses to hold the TLEs.
         If append is true, it keeps any old values that were in the dict before
         this function was called. Any duplicates are overwritten (updated?)
         """
@@ -135,6 +134,7 @@ class LD_TLEList:
         return self.tle_Dict.values()
 
 
+
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -144,3 +144,5 @@ if __name__ == "__main__":
     tle = my_tle_list.tle_Dict[sat_key[0]]
 
     print(tle)
+
+    l0, l1, l2 = str(tle).split("\n")
