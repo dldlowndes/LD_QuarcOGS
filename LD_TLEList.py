@@ -49,7 +49,7 @@ class LD_TLEList:
     def _Parse_File(self, flatlist, append):
         """
         Pass in plan text of TLE list. Each line is a TLE element so every 3
-tt        class uses to hold the TLEs.
+        class uses to hold the TLEs.
         If append is true, it keeps any old values that were in the dict before
         this function was called. Any duplicates are overwritten (updated?)
         """
@@ -132,7 +132,6 @@ tt        class uses to hold the TLEs.
     @property
     def TLEs(self):
         return self.tle_Dict.values()
-
 
 
 if __name__ == "__main__":
