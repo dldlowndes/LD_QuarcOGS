@@ -144,5 +144,3 @@ if __name__ == "__main__":
     tle = my_tle_list.tle_Dict[sat_key[0]]
 
     print(tle)
-
-    l0, l1, l2 = str(tle).split("\n")
