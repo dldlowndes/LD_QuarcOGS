@@ -103,6 +103,8 @@ class LD_PassFinder:
         Convert timestamps (either ISO strings or datetime objects) into
         localized astropy time stamps.
         """
+        log.debug(f"Processing stamp provided as {type(stamp)} to Astropy UTC")
+
         if not isinstance(stamp, (str, datetime.datetime)):
             raise TypeError
 
@@ -135,7 +137,7 @@ class LD_PassFinder:
         Celestrak.
         Or provide a LD_TLEList object directly.
         """
-        log.debug(f"Loading TLE list, list supplied of type {type(tle_List)}")
+        log.info(f"Loading TLE list, list supplied of type {type(tle_List)}")
 
         if isinstance(tle_List, str):
             self.tle_List = LD_TLEList.LD_TLEList(tle_List)
@@ -161,6 +163,7 @@ class LD_PassFinder:
 
         log.info(f"Search TLE list for {search_String}")
         result = self.tle_List.Search_And_Return(search_String)
+        log.debug(f"Search result {result}")
         return result
 
     def Calculate_Passes(self, satellites=None):

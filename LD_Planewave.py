@@ -7,6 +7,7 @@ import LD_PWI_Status
 import LD_MyTLE
 
 log = logging.getLogger(__name__)
+# urllib logs a lot if you don't shut it up
 url_Log = logging.getLogger("urllib3")
 url_Log.setLevel(logging.WARNING)
 
@@ -19,13 +20,14 @@ class LD_Planewave:
     def __init__(self, ip_Address="", port=""):
 
         if ip_Address != "":
-            log.debug(f"Connecting to {ip_Address}:{port}")
+
             self.Connect_IP(ip_Address, port)
         else:
             log.warning("No IP address supplied (yet). Use Connect_IP(ip, port) later")
 
     def Connect_IP(self, ip_Address="http://127.0.0.1", port="8220"):
         self.base_Url = f"{ip_Address}:{port}"
+        log.info(f"Connecting to PWI4 at URL: {self.base_Url}")
 
         # Container for the status messages of the device.
         self.status = LD_PWI_Status.LD_PWI_Status()
@@ -230,7 +232,7 @@ class LD_Planewave:
         Allow (an advanced?) user to speficy some exact raw command to the
         mount. (i.e.) a specific HTTP request and return the response.
         """
-        
+
         if isinstance(raw_Str, str):
             response = self._SendMsg(raw_Str)
             return response

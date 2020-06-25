@@ -33,14 +33,14 @@ class LD_TLEList:
                 self.Load_TLEs_From_File(path)
 
     def Load_TLEs_From_File(self, path, append=False):
-        log.debug(f"Load TLEs from file: {path}")
+        log.info(f"Load TLEs from file: {path}")
         data = open(path).read()
         flatlist = data.split("\n")
 
         self._Parse_File(flatlist, append)
 
     def Load_TLEs_From_URL(self, url, append=False):
-        log.debug(f"Load TLEs from URL: {url}")
+        log.info(f"Load TLEs from URL: {url}")
         req = requests.get(url)
         flatlist = req.text.split("\r\n")
 
@@ -70,8 +70,8 @@ class LD_TLEList:
             self.tle_Dict[key] = LD_MyTLE.LD_MyTLE(data)
 
         if append:
-            log.debug(f"Added {i} additional TLEs")
-        log.debug(f"List contains {self.__len__()} TLEs")
+            log.info(f"Added {i} additional TLEs")
+        log.info(f"List contains {self.__len__()} TLEs")
 
         # Hilarious one liner to do the above:
         # {x.rstrip():(x,y,z) for x,y,z in itertools.zip_longest(*[iter(flatlist)] * 3)}
@@ -82,8 +82,8 @@ class LD_TLEList:
         """
 
         search_Keys = list(filter(lambda x: search_String.lower() in x.lower(), self.tle_Dict.keys()))
-        log.debug(f"Searched TLE list for {search_String}, found {len(search_Keys)} matching TLE names")
-
+        log.info(f"Searched TLE list for {search_String}, found {len(search_Keys)} matching TLE names")
+        log.debug(f"Keys are: {search_Keys}")
         return search_Keys
 
     def Search_And_Return(self, search):
@@ -91,6 +91,8 @@ class LD_TLEList:
         Search the satellites names for a substring, return a
         list of all the matching satellites (eg searching "starlink" returns
         a list of about 400 My_TLE objects)
+        If a list is passed, each string is searched separately and anything
+        matching any string is returned.
         """
 
         if isinstance(search, str):
@@ -135,7 +137,7 @@ class LD_TLEList:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
     my_tle_list = LD_TLEList("tle_Files/active.txt")
 

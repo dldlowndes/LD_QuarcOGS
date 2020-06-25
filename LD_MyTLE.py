@@ -1,4 +1,7 @@
 import datetime
+import logging
+
+log = logging.getLogger(__name__)
 
 def _To_CS(c):
     """
@@ -39,6 +42,9 @@ class LD_MyTLE:
         most seamlessly support the LD_Planewave telescope mount interface
         which likes dicts.
         """
+
+#        log.debug("Creating new TLE object from {type(tle)}:")
+#        log.debug(f"{tle}")
 
         if isinstance(tle, str):
             tle = tle.split("\n")
@@ -81,7 +87,6 @@ class LD_MyTLE:
         my_checksum_2 = Calc_Checksum(self.tle_Dict["line2"])
         # Ensure the checksum value in the line matches the calculated checksum
         assert int(self.checksum_2) == my_checksum_2
-
 
 
     @property
