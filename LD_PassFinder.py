@@ -163,7 +163,8 @@ class LD_PassFinder:
 
         log.info(f"Search TLE list for {search_String}")
         result = self.tle_List.Search_And_Return(search_String)
-        log.debug(f"Search result {result}")
+        if search_String != "":
+            log.debug(f"Search result {result}")
         return result
 
     def Calculate_Passes(self, satellites=None):

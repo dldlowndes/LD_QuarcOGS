@@ -83,7 +83,8 @@ class LD_TLEList:
 
         search_Keys = list(filter(lambda x: search_String.lower() in x.lower(), self.tle_Dict.keys()))
         log.info(f"Searched TLE list for {search_String}, found {len(search_Keys)} matching TLE names")
-        log.debug(f"Keys are: {search_Keys}")
+        if search_String != "":
+            log.debug(f"Keys are: {search_Keys}")
         return search_Keys
 
     def Search_And_Return(self, search):

@@ -41,8 +41,10 @@ class telescope_Thread(QtCore.QThread):
         """
 
         log.debug(f"Connect to PWI4 HTTP server at {ip_Address}:{port}")
+
         response = self.mount.Connect_IP(ip_Address, port)
         self.thread_Active = True
+
         return response
 
     def Connect_Mount(self):

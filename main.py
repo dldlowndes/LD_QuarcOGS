@@ -34,6 +34,7 @@ for log_name in ["__main__", "LD_MyTLE", "LD_PassFinder", "LD_Planewave", "LD_PW
     lgr.setLevel(logging.DEBUG)
     lgr.addHandler(fh)
 
+
 class MyWindow(QtWidgets.QMainWindow):
     """
     Window for the UI for the OGS program.
@@ -219,8 +220,13 @@ class MyWindow(QtWidgets.QMainWindow):
             ip = self.ui.value_ip.text()
 
         port = self.ui.value_port.text()
-        self.telescope_Thread.Connect_Server(ip, port)
-        self.telescope_Thread.start()
+
+        try:
+            self.telescope_Thread.Connect_Server(ip, port)
+            self.telescope_Thread.start()
+        except Exception as e:
+            print("oops")
+            raise e
 
     def On_Goto_AltAz_Button(self):
         """
@@ -407,7 +413,12 @@ class MyWindow(QtWidgets.QMainWindow):
         """
 
         tle_Str = self.ui.value_tle_cmd.toPlainText()
-        tle = LD_MyTLE.LD_MyTLE(tle_Str)
+        try:
+            tle = LD_MyTLE.LD_MyTLE(tle_Str)
+        except AssertionError as e:
+            # The TLE supplied did not parse correctly into the TLE object
+            log.warning("Invalid TLE string")
+            return
 
         if self.ui.option_tle_cmd_now.isChecked():
             self.telescope_Thread.Follow_TLE(tle)

@@ -20,7 +20,6 @@ class LD_Planewave:
     def __init__(self, ip_Address="", port=""):
 
         if ip_Address != "":
-
             self.Connect_IP(ip_Address, port)
         else:
             log.warning("No IP address supplied (yet). Use Connect_IP(ip, port) later")
@@ -31,6 +30,7 @@ class LD_Planewave:
 
         # Container for the status messages of the device.
         self.status = LD_PWI_Status.LD_PWI_Status()
+        return self.Status()
 
     def _SendMsg(self, command, **kwargs):
         """
