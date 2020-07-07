@@ -1,0 +1,18 @@
+- Install Python3.8
+- Install Pipenv ("pip install pipenv --user")
+- Install the environment ("pipenv install")
+- Enter the environment ("pipenv shell")
+- Run the program ("python main.py")
+
+Alternative:
+- Have python >=3.6
+- Manually use Pip or conda or whatever to install:
+	- scipy
+	- pyqt5
+	- pandas
+	- requests
+	- tzlocal
+	- matplotlib
+	- sgp4
+	- astropy4.1rc1
+- Run the program ("python main.py")
