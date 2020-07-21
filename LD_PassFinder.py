@@ -23,6 +23,7 @@ import dateutil
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pandas as pd
 import scipy.signal
 import sgp4.api
@@ -346,6 +347,8 @@ class LD_PassFinder:
                             ".csv"
                             ])
 
+        if not os.path.exists("pass_Data"):
+            os.mkdir("pass_Data")
         with open(filename, "w") as f:
             f.write("Name, time, alt, az\n")
             data = self.Get_Pass_List()

@@ -63,6 +63,7 @@ class satellites_Thread(QtCore.QThread):
 
         self.finder.Calculate_Passes(self.tles)
         self.pass_Data = self.finder.Filter_Passes(alt_Filter=self.degrees)
+        self.finder.Save_Pass_List()
 
         self.passes_Signal.emit(self.pass_Data)
 
