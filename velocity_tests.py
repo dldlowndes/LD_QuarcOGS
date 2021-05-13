@@ -6,8 +6,6 @@ This helps https://docs.astropy.org/en/stable/coordinates/satellites.html
 """
 
 import datetime
-import logging
-import sys
 
 import astropy
 import astropy.coordinates
@@ -17,14 +15,8 @@ import dateutil
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-import pandas as pd
-import scipy.signal
 import sgp4.api
 import tzlocal
-
-import LD_MyTLE
-import LD_TLEList
 
 
 def convert_timestamp(stamp, tz):
@@ -34,18 +26,15 @@ def convert_timestamp(stamp, tz):
     stamp = tz.localize(dateutil.parser.parse(stamp))
     return astropy.time.Time(stamp)
 
-
 sample_tle = ["ISS (ZARYA)",
               "1 25544U 98067A   21127.19945859  .00000523  00000-0  17665-4 0  9992",
               "2 25544  51.6441 185.4559 0002803 329.9462 127.3881 15.48981972282240"]
-
 
 # Time parameters of simulation
 my_tz = tzlocal.get_localzone()
 t_start = convert_timestamp("2021-05-07T00:00:00", my_tz)
 t_stop = convert_timestamp("2021-05-07T23:00:00", my_tz)
 t_step = datetime.timedelta(seconds=30)
-
 
 # Turn time parameters into a list of every time point to simulate.
 # (sgp4 takes julian dates)
