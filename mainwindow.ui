@@ -193,7 +193,7 @@
            <item row="0" column="1">
             <widget class="QGroupBox" name="box_MountStatus">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -269,13 +269,26 @@
                 </item>
                </layout>
               </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </widget>
            </item>
            <item row="0" column="3">
             <widget class="QGroupBox" name="box_Axis1">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -364,6 +377,19 @@
                 </item>
                </layout>
               </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </widget>
            </item>
@@ -373,7 +399,7 @@
               <bool>true</bool>
              </property>
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -458,13 +484,26 @@
                 </item>
                </layout>
               </item>
+              <item row="1" column="0">
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </widget>
            </item>
            <item row="0" column="0">
             <widget class="QGroupBox" name="box_MountSite">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -478,13 +517,20 @@
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>160</height>
+               <height>16777215</height>
               </size>
              </property>
              <property name="title">
               <string>Site</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_21">
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_lst">
+                <property name="text">
+                 <string>LST</string>
+                </property>
+               </widget>
+              </item>
               <item row="2" column="1">
                <widget class="QLineEdit" name="value_telescope_height">
                 <property name="sizePolicy">
@@ -507,45 +553,6 @@
                 </property>
                 <property name="readOnly">
                  <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_telescope_height">
-                <property name="text">
-                 <string>Height (m)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="value_telescope_lat">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>65</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>150</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_telescope_lon">
-                <property name="text">
-                 <string>Longitude (°E)</string>
                 </property>
                </widget>
               </item>
@@ -574,20 +581,6 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_lst">
-                <property name="text">
-                 <string>LST</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_telescope_lat">
-                <property name="text">
-                 <string>Latitude (°N)</string>
-                </property>
-               </widget>
-              </item>
               <item row="3" column="1">
                <widget class="QLineEdit" name="value_lst">
                 <property name="sizePolicy">
@@ -613,10 +606,10 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_Geometry">
+              <item row="5" column="1">
+               <widget class="QLabel" name="value_MoveStatus">
                 <property name="text">
-                 <string>Geometry:</string>
+                 <string>Not moving</string>
                 </property>
                </widget>
               </item>
@@ -627,6 +620,59 @@
                 </property>
                </widget>
               </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_Geometry">
+                <property name="text">
+                 <string>Geometry:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="value_telescope_lat">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>65</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>150</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_telescope_lat">
+                <property name="text">
+                 <string>Latitude (°N)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_telescope_height">
+                <property name="text">
+                 <string>Height (m)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_telescope_lon">
+                <property name="text">
+                 <string>Longitude (°E)</string>
+                </property>
+               </widget>
+              </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_MoveStatus">
                 <property name="text">
@@ -634,12 +680,18 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
-               <widget class="QLabel" name="value_MoveStatus">
-                <property name="text">
-                 <string>Not moving</string>
+              <item row="6" column="0">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
                 </property>
-               </widget>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>

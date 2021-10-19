@@ -226,10 +226,11 @@ class LD_PassFinder:
             # Convert satellite coordinates (relative to earth) into alt/az
             # from this position on earth (set by Set_Position).
             view = itrs.transform_to(observer)
+            self.view = view
             data = pd.DataFrame({
                 "time": self.utc_Time_Series,
-                "alt": view.alt.data,
-                "az": view.az.data
+                "alt": view.alt.data.tolist(),
+                "az": view.az.data.tolist()
                 })
             self.altaz_Data.append([tle, data])
 
@@ -390,7 +391,7 @@ class LD_PassFinder:
             # purposes (plotting azimuth as well would be confusing)
             y_data = data["alt"]
             my_ax.plot_date(x_data, y_data, xdate=True,
-                            linestyle="-", marker=None)
+                            fmt="-")
 
             label_text = sat.name.rstrip()
             label_pos_x = matplotlib.dates.date2num(peak_Info[0])
@@ -426,7 +427,7 @@ if __name__ == "__main__":
     # (and the resolution in minutes)
     finder.Search_Time_Range(
         "2020-06-11T22:00:00",
-        "2020-06-12T06:00:00",
+        "2020-06-15T06:00:00",
         1
         )
 
@@ -447,7 +448,7 @@ if __name__ == "__main__":
 
     # Calculate the alt/az (degrees) at the time intervals specified for all
     # the satellites passed in. Outputs in the format [<tle_Obj>, <alt>, <az>]
-    pdata = finder.Calculate_Passes(t3)
+    pdata = finder.Calculate_Passes(t1)
 
     #finder.Plot_Passes()
 

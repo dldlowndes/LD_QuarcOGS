@@ -9,7 +9,7 @@ import datetime
 import logging
 import sys
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, uic
 import matplotlib
 from matplotlib.backends.backend_qt5agg import (
         FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
@@ -601,7 +601,7 @@ class MyWindow(QtWidgets.QMainWindow):
             # purposes (plotting azimuth as well would be confusing)
             y_data = data["alt"]
             self.axes.plot_date(x_data, y_data, xdate=True,
-                                linestyle="-", marker=None)
+                                fmt="")
 
             label_text = sat.name.rstrip()
             label_pos_x = matplotlib.dates.date2num(peak_Info[0])
